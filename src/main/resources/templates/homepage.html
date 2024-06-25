@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Home</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+        .content-wrapper {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+<div class="content-wrapper">
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-primary">
+        <a class="navbar-brand" style="font-size: x-large; font-weight: bold; color: white;" href="/home">CC</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto" style="font-weight: bold">
+                <li class="nav-item">
+                    <a class="nav-link"  href="/home">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Register</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Content Section -->
+    <div class="content">
+        <div class="jumbotron w-100">
+            <h1 class="display-4" style="margin: 5%">Welcome to Construction Calculator!</h1>
+                <p class="lead" style="margin: 2.5%">We aim to make indoor renovation and development easier for both pros and DIY enthusiasts! </p>
+            <a class="btn btn-primary btn-lg" style="margin-bottom: 2.5%" href="#" role="button">Learn more</a>
+            <p class="display-6" style=" font-size: 150% ">Give us a try or load your custom data</p>
+            <a class="btn btn-primary btn-lg" style="margin-right: 0.25%" href="/construction/calculation" role="button">Try it out</a>
+            <a class="btn btn-primary btn-lg" style="margin-left: 0.25%" href="/construction/import" role="button">Import data</a>
+        </div>
+    </div>
+
+
+
+
+
+    <!-- Footer -->
+    <footer class="footer bg-light text-center" style="flex-shrink: 0">
+        <div class="container">
+            <span class="text-muted">&copy; 2024 Construction Calculator. All rights reserved.</span>
+        </div>
+    </footer>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
