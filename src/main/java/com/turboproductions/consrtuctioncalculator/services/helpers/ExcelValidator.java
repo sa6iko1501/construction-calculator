@@ -80,7 +80,7 @@ public class ExcelValidator {
   }
 
   private static boolean isValidBigDecimal(double value) {
-    BigDecimal bigDecimalValue = new BigDecimal(value);
+    BigDecimal bigDecimalValue = BigDecimal.valueOf(value);
     return !(bigDecimalValue.doubleValue() <= 0);
   }
 }

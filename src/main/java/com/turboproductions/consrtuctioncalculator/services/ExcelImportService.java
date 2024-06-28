@@ -10,7 +10,6 @@ import com.turboproductions.consrtuctioncalculator.services.helpers.ExcelValidat
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @Service
 public class ExcelImportService {
-  @Autowired private MaterialDao materialDao;
+  private final MaterialDao materialDao;
 
   public String handleExcelImport(MultipartFile excelFile) {
     String errMessage = ExcelValidator.validateExcelDataTemplate(excelFile);

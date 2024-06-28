@@ -2,7 +2,6 @@
 package com.turboproductions.consrtuctioncalculator.controllers;
 
 import com.turboproductions.consrtuctioncalculator.services.ExcelImportService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,7 +12,11 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 @RequestMapping("/construction")
 public class CalculationController {
-  @Autowired ExcelImportService excelImportService;
+  private final ExcelImportService excelImportService;
+
+  public CalculationController(ExcelImportService excelImportService) {
+    this.excelImportService = excelImportService;
+  }
 
   @GetMapping("/calculation")
   String getCalculationPage(Model model) {
@@ -28,9 +31,8 @@ public class CalculationController {
   @PostMapping("/import")
   String importData(Model model, MultipartFile excelFile) {
     String errMsg = excelImportService.handleExcelImport(excelFile);
-    if (errMsg != null) {
-      model.addAttribute("message", errMsg);
-    }
+    model.addAttribute("message", errMsg == null ? "Import Successful!" : errMsg);
+
     return "import-data-page";
   }
 }
