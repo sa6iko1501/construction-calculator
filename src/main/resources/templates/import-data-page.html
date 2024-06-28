@@ -58,7 +58,19 @@
 
     <!-- Content Section -->
     <div class="content">
-
+        <div class="container">
+            <h2>Upload custom data for calculations</h2>
+            <form method="post" th:action="@{/construction/import}" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="file">Choose Excel file</label>
+                    <input type="file" id="file" name="excelFile" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Import</button>
+            </form>
+        </div>
+        <div th:if="${message}" class="alert alert-info" style="margin-top: 1.5%" role="alert">
+            <p th:text="${message}"></p>
+        </div>
     </div>
 
 

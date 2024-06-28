@@ -1,5 +1,5 @@
 /* Construction Calculator - Alexander Stoyanov! 2024 */
-package com.turboproductions.consrtuctioncalculator.controlers;
+package com.turboproductions.consrtuctioncalculator.controllers;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
