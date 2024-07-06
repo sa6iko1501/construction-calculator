@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.web.multipart.MultipartFile;
 
-public class ExcelValidator {
+public class MaterialValidator {
   private static final String BAD_CELL_ERR_MSG = "Bad cell at cell row '%s'";
 
   /**
@@ -18,41 +18,48 @@ public class ExcelValidator {
    *     passes all checks
    */
   public static String validateExcelDataTemplate(MultipartFile excelFile) {
-    String errMsg = excelFile.isEmpty() ? "Empty file" : null;
-    if (errMsg == null) {
-      try (Workbook workbook = WorkbookFactory.create(excelFile.getInputStream())) {
-        String fileName = excelFile.getOriginalFilename();
-        errMsg =
-            (fileName == null || fileName.isEmpty() || fileName.isBlank())
-                ? "Error in import file"
-                : null;
-        if (errMsg == null) {
-          errMsg = validateExcelFileType(fileName);
-          if (errMsg == null) {
-            Sheet sheet = workbook.getSheetAt(0);
-            for (Row row : sheet) {
-              if (row.getLastCellNum() != 2) {
-                errMsg =
-                    String.format(
-                        "Problem with file '%s' in row number '%s'", fileName, row.getRowNum() + 1);
-                break;
-              }
-              errMsg = validateExcelDataRow(row);
-              if (errMsg != null) {
-                break;
-              }
-            }
-            return errMsg;
-          }
-        }
-        return errMsg;
-      } catch (IOException ex) {
-        ex.printStackTrace();
-        errMsg = String.format("Unsupported file type for '%s'", excelFile.getOriginalFilename());
-        return errMsg;
-      }
+    if (excelFile.isEmpty()) {
+      return "Empty file";
     }
-    return errMsg;
+
+    String fileName = excelFile.getOriginalFilename();
+    if (fileName == null || fileName.trim().isEmpty()) {
+      return "Error in import file";
+    }
+
+    String errMsg = validateExcelFileType(fileName);
+    if (errMsg != null) {
+      return errMsg;
+    }
+
+    try (Workbook workbook = WorkbookFactory.create(excelFile.getInputStream())) {
+      Sheet sheet = workbook.getSheetAt(0);
+      for (Row row : sheet) {
+        if (row.getLastCellNum() != 2) {
+          return String.format(
+              "Problem with file '%s' in row number '%s'", fileName, row.getRowNum() + 1);
+        }
+        errMsg = validateExcelDataRow(row);
+        if (errMsg != null) {
+          return errMsg;
+        }
+      }
+    } catch (IOException ex) {
+      ex.printStackTrace();
+      return String.format("Unsupported file type for '%s'", fileName);
+    }
+    return null;
+  }
+
+  public static String validateMaterialProperties(String name, double pricePerSqM) {
+    if (name == null || name.isBlank() || name.isEmpty()) {
+      return "Invalid value for name";
+    }
+    if (!isValidBigDecimal(pricePerSqM)) {
+      return String.format(
+          "Value '%s' invalid for price of item '%s'", String.valueOf(pricePerSqM), name);
+    }
+    return null;
   }
 
   private static String validateExcelFileType(String fileName) {
@@ -62,6 +69,12 @@ public class ExcelValidator {
   }
 
   private static String validateExcelDataRow(Row row) {
+    if (row.getCell(0) == null) {
+      return String.format(BAD_CELL_ERR_MSG, row.getRowNum() + 1);
+    }
+    if (row.getCell(1) == null) {
+      return String.format(BAD_CELL_ERR_MSG, row.getRowNum() + 1);
+    }
     if (row.getCell(0).getCellType() != CellType.STRING) {
       return String.format(BAD_CELL_ERR_MSG, row.getRowNum() + 1);
     }

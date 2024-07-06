@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Import Data</title>
+    <title>Update a material</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         html, body {
@@ -44,7 +44,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto" style="font-weight: bold">
                 <li class="nav-item">
-                    <a class="nav-link"      href="/home">Home</a>
+                    <a class="nav-link" href="/home">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Login</a>
@@ -59,13 +59,18 @@
     <!-- Content Section -->
     <div class="content">
         <div class="container">
-            <h2>Upload custom data for calculations</h2>
-            <form method="post" th:action="@{/material/import}" enctype="multipart/form-data">
+            <h2>Update a material</h2>
+            <form th:action="@{/material/update}" th:object="${material}" method="post">
                 <div class="form-group">
-                    <label for="file">Choose Excel file</label>
-                    <input type="file" id="file" name="excelFile" class="form-control" required>
+                    <label for="name">Material Name</label>
+                    <input type="text" id="name" name="name" th:value="${material.name}" th:field="*{name}" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Import</button>
+                <div class="form-group">
+                    <label for="pricePerSqm">Price</label>
+                    <input type="number" step="0.01" id="pricePerSqm" name="pricePerSqm" th:value="${material.pricePerSqMeter}" th:field="*{pricePerSqMeter}" class="form-control" required min="0.01">
+                </div>
+                <input type="hidden" id="materialId" name="materialId" th:value="${material.materialId}" th:field="*{materialId}">
+                <button type="submit" class="btn btn-primary">Update Material</button>
             </form>
         </div>
         <div th:if="${message}" class="alert alert-info" style="margin-top: 1.5%" role="alert">

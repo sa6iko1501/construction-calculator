@@ -5,4 +5,4 @@ import com.turboproductions.consrtuctioncalculator.models.Material;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface MaterialDao extends JpaRepository<Material, UUID> {}
+public interface MaterialRepository extends JpaRepository<Material, UUID> {}

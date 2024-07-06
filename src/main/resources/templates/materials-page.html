@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Import Data</title>
+    <title>Materials</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         html, body {
@@ -58,18 +58,43 @@
 
     <!-- Content Section -->
     <div class="content">
-        <div class="container">
-            <h2>Upload custom data for calculations</h2>
-            <form method="post" th:action="@{/material/import}" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="file">Choose Excel file</label>
-                    <input type="file" id="file" name="excelFile" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Import</button>
-            </form>
-        </div>
         <div th:if="${message}" class="alert alert-info" style="margin-top: 1.5%" role="alert">
             <p th:text="${message}"></p>
+        </div>
+        <h2>Materials List</h2>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="material : ${materials}">
+                <td th:text="${material.name}"></td>
+                <td th:text="${material.pricePerSqMeter}"></td>
+                <td>
+                    <form th:action="@{/material/update/{id}(id=${material.materialId})}" method="get" style="display:inline;">
+                        <button type="submit" class="btn btn-primary btn-sm">Update</button>
+                    </form>
+                    <form th:action="@{/material/delete/{id}(id=${material.materialId})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div>
+            <form th:action="@{/material/create}" method="get" style="display:inline">
+                <button type="submit" class="btn btn-primary btn-sm">Create</button>
+            </form>
+            <form th:action="@{/material/export}" method="get" style="display:inline">
+                <button type="submit" class="btn btn-primary btn-sm">Export</button>
+            </form>
+            <form th:action="@{/material/template}" method="get" style="display:inline">
+                <button type="submit" class="btn btn-warning btn-sm">Download template</button>
+            </form>
         </div>
     </div>
 
