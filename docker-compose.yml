@@ -1,0 +1,16 @@
+version: '4.2'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlServer
+    ports:
+      - "1433:1433"
+    environment:
+      SA_PASSWORD: "c@lcUl@tor"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+
+volumes:
+  sqlserver-data:

@@ -1,6 +1,10 @@
+import com.avast.gradle.dockercompose.tasks.ComposeDown
+import com.avast.gradle.dockercompose.tasks.ComposeUp
+
 plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.3.0-SNAPSHOT'
+	id 'com.avast.gradle.docker-compose' version '0.17.6'
 	id 'io.spring.dependency-management' version '1.1.4'
 	id 'com.diffplug.spotless' version '6.25.0'
 	id "org.sonarqube" version "4.4.1.3373"
@@ -60,6 +64,50 @@ sonar {
 		property 'sonar.branch', sonarBranch
 	}
 }
+
+dockerCompose {
+	useComposeFiles = ['docker-compose.yml']
+	startedServices = ['sqlserver']
+	stopContainers = true
+	removeContainers = true
+	removeVolumes = true
+	removeOrphans = true
+	forceRecreate = true
+	waitForTcpPorts = true
+}
+
+tasks.register('startDataBase', ComposeUp) {
+	dependsOn composeUp
+}
+
+tasks.register('stopDataBase', ComposeDown) {
+	dependsOn composeDown
+}
+
+tasks.register('useDatabase') {
+	dependsOn startDatabase
+	finalizedBy stopDatabase
+}
+
+tasks.register('createDataBase') {
+	dependsOn(composeUp)
+	doLast {
+		def username = "sa"
+		def password = "c@lcUl@tor"
+		def database = "calc"
+		def command = "docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U $username -P $password -Q \"IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = '$database') CREATE DATABASE $database\""
+		exec {
+			commandLine 'cmd', '/c', command
+		}
+	}
+}
+
+tasks.register('runDatabaseTask') {
+	dependsOn createDataBase
+	finalizedBy composeDown
+}
+
+
 
 tasks.named('test') {
 	useJUnitPlatform()
