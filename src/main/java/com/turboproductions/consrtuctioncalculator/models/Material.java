@@ -25,12 +25,16 @@ public class Material {
   @Column(name = "material_name", unique = true, nullable = false)
   private String name;
 
+  @Column(name = "material_type")
+  private MaterialType type;
+
   @Column(name = "material_price_perSqM")
   private double pricePerSqMeter;
 
-  public Material(String name, double pricePerSqMeter) {
+  public Material(String name, MaterialType type, double pricePerSqMeter) {
     this.materialId = UUID.randomUUID();
     this.name = name;
     this.pricePerSqMeter = pricePerSqMeter;
+    this.type = type;
   }
 }

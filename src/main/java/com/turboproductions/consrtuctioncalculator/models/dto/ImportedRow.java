@@ -8,5 +8,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public class ImportedRow {
   private final String name;
+  private final String type;
   private final double value;
 }

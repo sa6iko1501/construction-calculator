@@ -21,7 +21,9 @@ public class ExcelParser {
       for (Row row : sheet) {
         ImportedRow importedRow =
             new ImportedRow(
-                row.getCell(0).getStringCellValue(), row.getCell(1).getNumericCellValue());
+                row.getCell(0).getStringCellValue(),
+                row.getCell(1).getStringCellValue(),
+                row.getCell(2).getNumericCellValue());
         results.add(importedRow);
       }
       return Optional.of(new ExcelImportResult(results));

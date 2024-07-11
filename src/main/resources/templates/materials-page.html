@@ -66,6 +66,7 @@
             <thead>
             <tr>
                 <th>Name</th>
+                <th>Type</th>
                 <th>Price</th>
                 <th>Actions</th>
             </tr>
@@ -73,6 +74,7 @@
             <tbody>
             <tr th:each="material : ${materials}">
                 <td th:text="${material.name}"></td>
+                <td th:text="${material.type}"></td>
                 <td th:text="${material.pricePerSqMeter}"></td>
                 <td>
                     <form th:action="@{/material/update/{id}(id=${material.materialId})}" method="get" style="display:inline;">

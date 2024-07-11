@@ -70,6 +70,12 @@
                     <input type="text" id="name" name="name" placeholder="Material name" th:field="*{name}" class="form-control" required>
                 </div>
                 <div class="form-group">
+                    <label for="materialType">Material Type</label>
+                    <select id="materialType" name="materialType" th:field="*{type}" class="form-control">
+                        <option th:each="type : ${materialTypes}" th:value="${type}" th:text="${type}" th:selected="*{type}">Material Type</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="pricePerSqm">Price</label>
                     <input type="number" step="0.01" id="pricePerSqm" name="pricePerSqm" placeholder="0.01" th:field="*{pricePerSqMeter}" class="form-control" required min="0.01">
                 </div>

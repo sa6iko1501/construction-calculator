@@ -3,6 +3,7 @@ package com.turboproductions.consrtuctioncalculator.services;
 
 import com.turboproductions.consrtuctioncalculator.dao.MaterialRepository;
 import com.turboproductions.consrtuctioncalculator.models.Material;
+import com.turboproductions.consrtuctioncalculator.models.MaterialType;
 import com.turboproductions.consrtuctioncalculator.models.dto.ExcelImportResult;
 import com.turboproductions.consrtuctioncalculator.models.dto.ImportedRow;
 import com.turboproductions.consrtuctioncalculator.services.helpers.ExcelParser;
@@ -34,7 +35,8 @@ public class MaterialService {
       for (Material material : materials) {
         Row row = sheet.createRow(rowNum++);
         row.createCell(0, CellType.STRING).setCellValue(material.getName());
-        row.createCell(1, CellType.NUMERIC).setCellValue(material.getPricePerSqMeter());
+        row.createCell(1, CellType.STRING).setCellValue(material.getType().toString());
+        row.createCell(2, CellType.NUMERIC).setCellValue(material.getPricePerSqMeter());
       }
       workbook.write(outputStream);
       return new ByteArrayInputStream(outputStream.toByteArray());
@@ -52,7 +54,8 @@ public class MaterialService {
       for (Material material : materials) {
         Row row = sheet.createRow(rowNum++);
         row.createCell(0, CellType.STRING).setCellValue(material.getName());
-        row.createCell(1, CellType.NUMERIC).setCellValue(material.getPricePerSqMeter());
+        row.createCell(1, CellType.STRING).setCellValue(material.getType().toString());
+        row.createCell(2, CellType.NUMERIC).setCellValue(material.getPricePerSqMeter());
       }
       workbook.write(outputStream);
       return new ByteArrayInputStream(outputStream.toByteArray());
@@ -79,7 +82,6 @@ public class MaterialService {
       materialRepository.saveAll(materials);
       return null;
     } catch (DataIntegrityViolationException ex) {
-      ex.printStackTrace();
       return "Import names cannot contain any duplicates";
     }
   }
@@ -128,15 +130,37 @@ public class MaterialService {
 
   private List<Material> loadDataForTemplate() {
     return List.of(
-        new Material("Blue Paint", 0.40),
-        new Material("Red Paint", 0.42),
-        new Material("Tiles", 6.50),
-        new Material("Wooden Tiles", 9.69),
-        new Material("Wallpaper", 8.20),
-        new Material("DryWall", 4.20));
+        new Material("Blue Paint", MaterialType.WALL, 0.40),
+        new Material("Red Paint", MaterialType.WALL, 0.42),
+        new Material("Tiles", MaterialType.FLOOR, 6.50),
+        new Material("Wooden Tiles", MaterialType.FLOOR, 9.69),
+        new Material("Wallpaper", MaterialType.WALL, 8.20),
+        new Material("DryWall", MaterialType.WALL, 4.20));
   }
 
   private Material toMaterial(ImportedRow importedRow) {
-    return new Material(importedRow.getName(), importedRow.getValue());
+    MaterialType type = null;
+    switch (importedRow.getType()) {
+      case "WALL":
+        {
+          type = MaterialType.WALL;
+          break;
+        }
+      case "FLOOR":
+        {
+          type = MaterialType.FLOOR;
+          break;
+        }
+      case "CEILING":
+        {
+          type = MaterialType.CEILING;
+          break;
+        }
+    }
+    if (type != null) {
+      return new Material(importedRow.getName(), type, importedRow.getValue());
+    } else {
+      throw new IllegalArgumentException("MaterialType cannot be `null` but was `null`");
+    }
   }
 }

@@ -2,6 +2,7 @@
 package com.turboproductions.consrtuctioncalculator.controllers;
 
 import com.turboproductions.consrtuctioncalculator.models.Material;
+import com.turboproductions.consrtuctioncalculator.models.MaterialType;
 import com.turboproductions.consrtuctioncalculator.services.MaterialService;
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -88,6 +89,7 @@ public class MaterialController {
       Material material = materialService.getMaterial(id);
       if (material != null) {
         model.addAttribute("material", material);
+        model.addAttribute("materialTypes", MaterialType.values());
         return "update-material-page";
       }
       model.addAttribute("message", "Invalid material.");
@@ -108,8 +110,9 @@ public class MaterialController {
 
   @GetMapping("/create")
   String getMaterialCreationPage(Model model) {
-    Material material = new Material("", 0);
+    Material material = new Material("", null, 0);
     model.addAttribute("material", material);
+    model.addAttribute("materialTypes", MaterialType.values());
     return "create-material-page";
   }
 
