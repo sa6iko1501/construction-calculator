@@ -4,11 +4,12 @@ package com.turboproductions.consrtuctioncalculator.services.helpers;
 import com.turboproductions.consrtuctioncalculator.models.MaterialType;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.Arrays;
 import org.apache.poi.ss.usermodel.*;
 import org.springframework.web.multipart.MultipartFile;
 
 public class MaterialValidator {
-  private static final String BAD_CELL_ERR_MSG = "Bad cell at cell row '%s'";
+  private static final String BAD_CELL_ERR_MSG = "Bad cell at cell row '%s'.";
 
   /**
    * Method to validate the file that was imported to make sure it adheres to all the requirements
@@ -38,7 +39,7 @@ public class MaterialValidator {
       for (Row row : sheet) {
         if (row.getLastCellNum() != 3) {
           return String.format(
-              "Problem with file '%s' in row number '%s'", fileName, row.getRowNum() + 1);
+              "Problem with file '%s' in row number '%s'.", fileName, row.getRowNum() + 1);
         }
         errMsg = validateExcelDataRow(row);
         if (errMsg != null) {
@@ -46,7 +47,7 @@ public class MaterialValidator {
         }
       }
     } catch (IOException ex) {
-      return String.format("Unsupported file type for '%s'", fileName);
+      return String.format("Unsupported file type for '%s'.", fileName);
     }
     return null;
   }
@@ -64,7 +65,7 @@ public class MaterialValidator {
     }
     if (!isValidBigDecimal(pricePerSqM)) {
       return String.format(
-          "Value '%s' invalid for price of item '%s'", String.valueOf(pricePerSqM), name);
+          "Value '%s' invalid for price of item '%s'.", String.valueOf(pricePerSqM), name);
     }
     return null;
   }
@@ -72,19 +73,10 @@ public class MaterialValidator {
   private static String validateExcelFileType(String fileName) {
     return fileName.endsWith(".xls") || fileName.endsWith(".xlsx")
         ? null
-        : String.format("Incorrect file format for file '%s'", fileName);
+        : String.format("Incorrect file format for file '%s'.", fileName);
   }
 
   private static String validateExcelDataRow(Row row) {
-    if (row.getCell(0) == null) {
-      return String.format(BAD_CELL_ERR_MSG, row.getRowNum() + 1);
-    }
-    if (row.getCell(1) == null) {
-      return String.format(BAD_CELL_ERR_MSG, row.getRowNum() + 1);
-    }
-    if (row.getCell(2) == null) {
-      return String.format(BAD_CELL_ERR_MSG, row.getRowNum() + 1);
-    }
     if (row.getCell(0).getCellType() != CellType.STRING) {
       return String.format(BAD_CELL_ERR_MSG, row.getRowNum() + 1);
     }
@@ -94,32 +86,29 @@ public class MaterialValidator {
     if (row.getCell(2).getCellType() != CellType.NUMERIC) {
       return String.format(BAD_CELL_ERR_MSG, row.getRowNum() + 1);
     }
-    if (row.getCell(0).getStringCellValue() == null) {
+    if (row.getCell(0).getStringCellValue().isEmpty()
+        || row.getCell(0).getStringCellValue().isBlank()) {
       return String.format(BAD_CELL_ERR_MSG, row.getRowNum() + 1);
     }
-    if (row.getCell(1).getStringCellValue() == null) {
+    if (row.getCell(1).getStringCellValue().isEmpty()
+        || row.getCell(1).getStringCellValue().isBlank()) {
       return String.format(BAD_CELL_ERR_MSG, row.getRowNum() + 1);
     }
     if (!isValidMaterialType(row.getCell(1).getStringCellValue())) {
       return String.format(
-          "Value '%s' at row '%s' is an invalid Material type. Types can be FLOOR, WALL and CEILING",
+          "Value '%s' at row '%s' is an invalid Material type. Types can be FLOOR, WALL and CEILING.",
           row.getCell(1).getStringCellValue(), row.getRowNum() + 1);
     }
     if (!isValidBigDecimal(row.getCell(2).getNumericCellValue())) {
       return String.format(
-          "Value '%s' invalid for price of item '%s' at row '%s'",
+          "Value '%s' invalid for price of item '%s' at row '%s'.",
           row.getCell(2), row.getCell(0), row.getRowNum() + 1);
     }
     return null;
   }
 
   private static boolean isValidMaterialType(String value) {
-    if (value.equals(MaterialType.WALL.toString())
-        || value.equals(MaterialType.FLOOR.toString())
-        || value.equals(MaterialType.CEILING.toString())) {
-      return true;
-    }
-    return false;
+    return Arrays.stream(MaterialType.values()).anyMatch(x -> x.toString().equals(value));
   }
 
   private static boolean isValidBigDecimal(double value) {

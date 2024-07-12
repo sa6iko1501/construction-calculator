@@ -12,7 +12,6 @@ import com.turboproductions.consrtuctioncalculator.services.helpers.MaterialVali
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -22,9 +21,14 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-public class MaterialValidatorTest {
+class MaterialValidatorTest {
   private static final String INVALID_NAME = "Invalid value for name.";
-  private static final String INVALID_PRICE = "Value '%s' invalid for price of item '%s'";
+  private static final String INVALID_PRICE = "Value '%s' invalid for price of item '%s'.";
+  private static final String BAD_CELL_ERR_MSG = "Bad cell at cell row '%s'.";
+  private static final String INVALID_TYPE =
+      "Value '%s' at row '%s' is an invalid Material type. Types can be FLOOR, WALL and CEILING.";
+  private static final String INVALID_PRICE_ROW =
+      "Value '%s' invalid for price of item '%s' at row '%s'.";
 
   @Test
   void validateMaterialPropertiesName() {
@@ -131,18 +135,19 @@ public class MaterialValidatorTest {
     output.close();
 
     MultipartFile wrongFileType =
-            new MockMultipartFile(
-                    "file",
-                    "file.bat",
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    input);
-    assertEquals(String.format("Incorrect file format for file '%s'", wrongFileType.getOriginalFilename()), validateExcelDataTemplate(wrongFileType));
+        new MockMultipartFile(
+            "file",
+            "file.bat",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            input);
+    assertEquals(
+        String.format("Incorrect file format for file '%s'.", wrongFileType.getOriginalFilename()),
+        validateExcelDataTemplate(wrongFileType));
   }
 
   @Test
   void validateWrongColumnCount() throws IOException {
     Workbook workbook = new XSSFWorkbook();
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
     Sheet sheet = workbook.createSheet("Sheet1");
     Row row = sheet.createRow(0);
     row.createCell(0, CellType.STRING).setCellValue("WOOD TILE");
@@ -150,18 +155,152 @@ public class MaterialValidatorTest {
     row.createCell(2, CellType.NUMERIC).setCellValue("12.3");
     row.createCell(3, CellType.STRING).setCellValue("EXTRA CELL");
 
-    workbook.write(output);
-    ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
-    workbook.close();
-    output.close();
-
-    MultipartFile wrongColumnNumbers =
-            new MockMultipartFile(
-                    "file",
-                    "file.xlsx",
-                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                    input);
-    assertEquals(String.format("Problem with file '%s' in row number '%s'", wrongColumnNumbers.getOriginalFilename(), 1), validateExcelDataTemplate(wrongColumnNumbers));
+    MultipartFile wrongColumnNumbers = createTestFile(workbook);
+    assertEquals(
+        String.format(
+            "Problem with file '%s' in row number '%s'.",
+            wrongColumnNumbers.getOriginalFilename(), 1),
+        validateExcelDataTemplate(wrongColumnNumbers));
   }
 
+  @Test
+  void validateExcelDataRowWithBlankName() throws IOException {
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Sheet1");
+    Row row = sheet.createRow(0);
+    row.createCell(0, CellType.STRING).setCellValue((String) null);
+    row.createCell(1, CellType.STRING).setCellValue("FLOOR");
+    row.createCell(2, CellType.NUMERIC).setCellValue(12.3);
+    MultipartFile file = createTestFile(workbook);
+    assertEquals(String.format(BAD_CELL_ERR_MSG, 1), validateExcelDataTemplate(file));
+  }
+
+  @Test
+  void validateExcelDataRowWithBlankType() throws IOException {
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Sheet1");
+    Row row = sheet.createRow(0);
+    row.createCell(0, CellType.STRING).setCellValue("Some name");
+    row.createCell(1, CellType.STRING).setCellValue((String) null);
+    row.createCell(2, CellType.NUMERIC).setCellValue(12.3);
+    MultipartFile file = createTestFile(workbook);
+    assertEquals(String.format(BAD_CELL_ERR_MSG, 1), validateExcelDataTemplate(file));
+  }
+
+  @Test
+  void validateExcelDataRowWithBlankPrice() throws IOException {
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Sheet1");
+    Row row = sheet.createRow(0);
+    row.createCell(0, CellType.STRING).setCellValue("Some name");
+    row.createCell(1, CellType.STRING).setCellValue("FLOOR");
+    row.createCell(2, CellType.NUMERIC).setCellValue((String) null);
+    MultipartFile file = createTestFile(workbook);
+    assertEquals(String.format(BAD_CELL_ERR_MSG, 1), validateExcelDataTemplate(file));
+  }
+
+  @Test
+  void validateExcelDataRowWithEmptyName() throws IOException {
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Sheet1");
+    Row row = sheet.createRow(0);
+    row.createCell(0, CellType.STRING).setCellValue("");
+    row.createCell(1, CellType.STRING).setCellValue("FLOOR");
+    row.createCell(2, CellType.NUMERIC).setCellValue(12);
+    MultipartFile file = createTestFile(workbook);
+    assertEquals(String.format(BAD_CELL_ERR_MSG, 1), validateExcelDataTemplate(file));
+  }
+
+  @Test
+  void validateExcelDataRowWithWhitespaceName() throws IOException {
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Sheet1");
+    Row row = sheet.createRow(0);
+    row.createCell(0, CellType.STRING).setCellValue(" ");
+    row.createCell(1, CellType.STRING).setCellValue("FLOOR");
+    row.createCell(2, CellType.NUMERIC).setCellValue(12);
+    MultipartFile file = createTestFile(workbook);
+    assertEquals(String.format(BAD_CELL_ERR_MSG, 1), validateExcelDataTemplate(file));
+  }
+
+  @Test
+  void validateExcelDataRowWithEmptyType() throws IOException {
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Sheet1");
+    Row row = sheet.createRow(0);
+    row.createCell(0, CellType.STRING).setCellValue("Name");
+    row.createCell(1, CellType.STRING).setCellValue("");
+    row.createCell(2, CellType.NUMERIC).setCellValue(12);
+    MultipartFile file = createTestFile(workbook);
+    assertEquals(String.format(BAD_CELL_ERR_MSG, 1), validateExcelDataTemplate(file));
+  }
+
+  @Test
+  void validateExcelDataRowWithWhitespaceType() throws IOException {
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Sheet1");
+    Row row = sheet.createRow(0);
+    row.createCell(0, CellType.STRING).setCellValue("Some name");
+    row.createCell(1, CellType.STRING).setCellValue(" ");
+    row.createCell(2, CellType.NUMERIC).setCellValue(12);
+    MultipartFile file = createTestFile(workbook);
+    assertEquals(String.format(BAD_CELL_ERR_MSG, 1), validateExcelDataTemplate(file));
+  }
+
+  @Test
+  void validateExcelDataRowWithWrongType() throws IOException {
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Sheet1");
+    Row row = sheet.createRow(0);
+    row.createCell(0, CellType.STRING).setCellValue("Some name");
+    row.createCell(1, CellType.STRING).setCellValue("WRONG TYPE");
+    row.createCell(2, CellType.NUMERIC).setCellValue(12);
+    MultipartFile file = createTestFile(workbook);
+    assertEquals(
+        String.format(INVALID_TYPE, row.getCell(1).getStringCellValue(), 1),
+        validateExcelDataTemplate(file));
+  }
+
+  @Test
+  void validateExcelDataRowWithInvalidPrice() throws IOException {
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Sheet1");
+    Row row = sheet.createRow(0);
+    row.createCell(0, CellType.STRING).setCellValue("Some name");
+    row.createCell(1, CellType.STRING).setCellValue("CEILING");
+    row.createCell(2, CellType.NUMERIC).setCellValue(-0.1);
+    MultipartFile file = createTestFile(workbook);
+    assertEquals(
+        String.format(
+            INVALID_PRICE_ROW,
+            row.getCell(2).getNumericCellValue(),
+            row.getCell(0).getStringCellValue(),
+            1),
+        validateExcelDataTemplate(file));
+  }
+
+  @Test
+  void validateExcelDataRowWithValidValues() throws IOException {
+    Workbook workbook = new XSSFWorkbook();
+    Sheet sheet = workbook.createSheet("Sheet1");
+    Row row = sheet.createRow(0);
+    row.createCell(0, CellType.STRING).setCellValue("Some name");
+    row.createCell(1, CellType.STRING).setCellValue("CEILING");
+    row.createCell(2, CellType.NUMERIC).setCellValue(12.3);
+    MultipartFile file = createTestFile(workbook);
+    assertNull(validateExcelDataTemplate(file));
+  }
+
+  private MultipartFile createTestFile(Workbook workbook) throws IOException {
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    workbook.write(output);
+    workbook.close();
+    output.close();
+    ByteArrayInputStream input = new ByteArrayInputStream(output.toByteArray());
+    return new MockMultipartFile(
+        "file",
+        "file.xlsx",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        input);
+  }
 }
