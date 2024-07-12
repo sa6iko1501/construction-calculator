@@ -20,12 +20,12 @@ public class MaterialValidator {
    */
   public static String validateExcelDataTemplate(MultipartFile excelFile) {
     if (excelFile.isEmpty()) {
-      return "Empty file";
+      return "Empty file.";
     }
 
     String fileName = excelFile.getOriginalFilename();
     if (fileName == null || fileName.trim().isEmpty()) {
-      return "Error in import file";
+      return "Error in import file.";
     }
 
     String errMsg = validateExcelFileType(fileName);
@@ -60,7 +60,7 @@ public class MaterialValidator {
    */
   public static String validateMaterialProperties(String name, double pricePerSqM) {
     if (name == null || name.isBlank() || name.isEmpty()) {
-      return "Invalid value for name";
+      return "Invalid value for name.";
     }
     if (!isValidBigDecimal(pricePerSqM)) {
       return String.format(
@@ -124,6 +124,6 @@ public class MaterialValidator {
 
   private static boolean isValidBigDecimal(double value) {
     BigDecimal bigDecimalValue = BigDecimal.valueOf(value);
-    return bigDecimalValue.doubleValue() >= 0;
+    return bigDecimalValue.doubleValue() > 0;
   }
 }
