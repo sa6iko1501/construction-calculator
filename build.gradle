@@ -95,7 +95,7 @@ tasks.register('createDataBase') {
 		def username = "sa"
 		def password = "c@lcUl@tor"
 		def database = "calc"
-		def command = "docker exec sqlserver /opt/mssql-tools/bin/sqlcmd -S localhost -U $username -P $password -Q \"IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = '$database') CREATE DATABASE $database\""
+		def command = "docker exec sqlServer /opt/mssql-tools/bin/sqlcmd -S localhost -U $username -P $password -Q \"IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = '$database') CREATE DATABASE $database\""
 		exec {
 			commandLine 'cmd', '/c', command
 		}
@@ -104,7 +104,6 @@ tasks.register('createDataBase') {
 
 tasks.register('runDatabaseTask') {
 	dependsOn createDataBase
-	finalizedBy composeDown
 }
 
 
