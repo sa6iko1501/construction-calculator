@@ -1,14 +1,11 @@
 /* Construction Calculator - Alexander Stoyanov! 2024 */
-package com.turboproductions.consrtuctioncalculator.helpers;
+package com.turboproductions.consrtuctioncalculator.services.helpers;
 
-import static com.turboproductions.consrtuctioncalculator.services.helpers.MaterialValidator.validateExcelDataTemplate;
-import static com.turboproductions.consrtuctioncalculator.services.helpers.MaterialValidator.validateMaterialProperties;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.turboproductions.consrtuctioncalculator.models.Material;
 import com.turboproductions.consrtuctioncalculator.models.MaterialType;
-import com.turboproductions.consrtuctioncalculator.services.helpers.MaterialValidator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -29,6 +26,7 @@ class MaterialValidatorTest {
       "Value '%s' at row '%s' is an invalid Material type. Types can be FLOOR, WALL and CEILING.";
   private static final String INVALID_PRICE_ROW =
       "Value '%s' invalid for price of item '%s' at row '%s'.";
+  private final MaterialValidator materialValidator = new MaterialValidator();
 
   @Test
   void validateMaterialPropertiesName() {
@@ -36,26 +34,28 @@ class MaterialValidatorTest {
     // Empty name
     assertEquals(
         INVALID_NAME,
-        MaterialValidator.validateMaterialProperties(
+        materialValidator.validateMaterialProperties(
             material.getName(), material.getPricePerSqMeter()));
 
     // Null name
     material.setName(null);
     assertEquals(
         INVALID_NAME,
-        MaterialValidator.validateMaterialProperties(
+        materialValidator.validateMaterialProperties(
             material.getName(), material.getPricePerSqMeter()));
 
     // Blank name
     material.setName("  ");
     assertEquals(
         INVALID_NAME,
-        MaterialValidator.validateMaterialProperties(
+        materialValidator.validateMaterialProperties(
             material.getName(), material.getPricePerSqMeter()));
 
     // Valid name
     material.setName("Red Paint");
-    assertNull(validateMaterialProperties(material.getName(), material.getPricePerSqMeter()));
+    assertNull(
+        materialValidator.validateMaterialProperties(
+            material.getName(), material.getPricePerSqMeter()));
   }
 
   @Test
@@ -65,17 +65,21 @@ class MaterialValidatorTest {
     // Negative price
     assertEquals(
         String.format(INVALID_PRICE, material.getPricePerSqMeter(), material.getName()),
-        validateMaterialProperties(material.getName(), material.getPricePerSqMeter()));
+        materialValidator.validateMaterialProperties(
+            material.getName(), material.getPricePerSqMeter()));
 
     // Price of zero
     material.setPricePerSqMeter(0);
     assertEquals(
         String.format(INVALID_PRICE, material.getPricePerSqMeter(), material.getName()),
-        validateMaterialProperties(material.getName(), material.getPricePerSqMeter()));
+        materialValidator.validateMaterialProperties(
+            material.getName(), material.getPricePerSqMeter()));
 
     // Valid price
     material.setPricePerSqMeter(1.99);
-    assertNull(validateMaterialProperties(material.getName(), material.getPricePerSqMeter()));
+    assertNull(
+        materialValidator.validateMaterialProperties(
+            material.getName(), material.getPricePerSqMeter()));
   }
 
   @Test
@@ -86,7 +90,7 @@ class MaterialValidatorTest {
             "empty.xlsx",
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             new byte[0]);
-    assertEquals("Empty file.", validateExcelDataTemplate(emptyFile));
+    assertEquals("Empty file.", materialValidator.validateExcelDataTemplate(emptyFile));
   }
 
   @Test
@@ -104,7 +108,8 @@ class MaterialValidatorTest {
             null,
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             input);
-    assertEquals("Error in import file.", validateExcelDataTemplate(nullFileName));
+    assertEquals(
+        "Error in import file.", materialValidator.validateExcelDataTemplate(nullFileName));
   }
 
   @Test
@@ -122,7 +127,8 @@ class MaterialValidatorTest {
             null,
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             input);
-    assertEquals("Error in import file.", validateExcelDataTemplate(emptyFileName));
+    assertEquals(
+        "Error in import file.", materialValidator.validateExcelDataTemplate(emptyFileName));
   }
 
   @Test
@@ -142,7 +148,7 @@ class MaterialValidatorTest {
             input);
     assertEquals(
         String.format("Incorrect file format for file '%s'.", wrongFileType.getOriginalFilename()),
-        validateExcelDataTemplate(wrongFileType));
+        materialValidator.validateExcelDataTemplate(wrongFileType));
   }
 
   @Test
@@ -160,7 +166,7 @@ class MaterialValidatorTest {
         String.format(
             "Problem with file '%s' in row number '%s'.",
             wrongColumnNumbers.getOriginalFilename(), 1),
-        validateExcelDataTemplate(wrongColumnNumbers));
+        materialValidator.validateExcelDataTemplate(wrongColumnNumbers));
   }
 
   @Test
@@ -172,7 +178,8 @@ class MaterialValidatorTest {
     row.createCell(1, CellType.STRING).setCellValue("FLOOR");
     row.createCell(2, CellType.NUMERIC).setCellValue(12.3);
     MultipartFile file = createTestFile(workbook);
-    assertEquals(String.format(BAD_CELL_ERR_MSG, 1), validateExcelDataTemplate(file));
+    assertEquals(
+        String.format(BAD_CELL_ERR_MSG, 1), materialValidator.validateExcelDataTemplate(file));
   }
 
   @Test
@@ -184,7 +191,8 @@ class MaterialValidatorTest {
     row.createCell(1, CellType.STRING).setCellValue((String) null);
     row.createCell(2, CellType.NUMERIC).setCellValue(12.3);
     MultipartFile file = createTestFile(workbook);
-    assertEquals(String.format(BAD_CELL_ERR_MSG, 1), validateExcelDataTemplate(file));
+    assertEquals(
+        String.format(BAD_CELL_ERR_MSG, 1), materialValidator.validateExcelDataTemplate(file));
   }
 
   @Test
@@ -196,7 +204,8 @@ class MaterialValidatorTest {
     row.createCell(1, CellType.STRING).setCellValue("FLOOR");
     row.createCell(2, CellType.NUMERIC).setCellValue((String) null);
     MultipartFile file = createTestFile(workbook);
-    assertEquals(String.format(BAD_CELL_ERR_MSG, 1), validateExcelDataTemplate(file));
+    assertEquals(
+        String.format(BAD_CELL_ERR_MSG, 1), materialValidator.validateExcelDataTemplate(file));
   }
 
   @Test
@@ -208,7 +217,8 @@ class MaterialValidatorTest {
     row.createCell(1, CellType.STRING).setCellValue("FLOOR");
     row.createCell(2, CellType.NUMERIC).setCellValue(12);
     MultipartFile file = createTestFile(workbook);
-    assertEquals(String.format(BAD_CELL_ERR_MSG, 1), validateExcelDataTemplate(file));
+    assertEquals(
+        String.format(BAD_CELL_ERR_MSG, 1), materialValidator.validateExcelDataTemplate(file));
   }
 
   @Test
@@ -220,7 +230,8 @@ class MaterialValidatorTest {
     row.createCell(1, CellType.STRING).setCellValue("FLOOR");
     row.createCell(2, CellType.NUMERIC).setCellValue(12);
     MultipartFile file = createTestFile(workbook);
-    assertEquals(String.format(BAD_CELL_ERR_MSG, 1), validateExcelDataTemplate(file));
+    assertEquals(
+        String.format(BAD_CELL_ERR_MSG, 1), materialValidator.validateExcelDataTemplate(file));
   }
 
   @Test
@@ -232,7 +243,8 @@ class MaterialValidatorTest {
     row.createCell(1, CellType.STRING).setCellValue("");
     row.createCell(2, CellType.NUMERIC).setCellValue(12);
     MultipartFile file = createTestFile(workbook);
-    assertEquals(String.format(BAD_CELL_ERR_MSG, 1), validateExcelDataTemplate(file));
+    assertEquals(
+        String.format(BAD_CELL_ERR_MSG, 1), materialValidator.validateExcelDataTemplate(file));
   }
 
   @Test
@@ -244,7 +256,8 @@ class MaterialValidatorTest {
     row.createCell(1, CellType.STRING).setCellValue(" ");
     row.createCell(2, CellType.NUMERIC).setCellValue(12);
     MultipartFile file = createTestFile(workbook);
-    assertEquals(String.format(BAD_CELL_ERR_MSG, 1), validateExcelDataTemplate(file));
+    assertEquals(
+        String.format(BAD_CELL_ERR_MSG, 1), materialValidator.validateExcelDataTemplate(file));
   }
 
   @Test
@@ -258,7 +271,7 @@ class MaterialValidatorTest {
     MultipartFile file = createTestFile(workbook);
     assertEquals(
         String.format(INVALID_TYPE, row.getCell(1).getStringCellValue(), 1),
-        validateExcelDataTemplate(file));
+        materialValidator.validateExcelDataTemplate(file));
   }
 
   @Test
@@ -276,7 +289,7 @@ class MaterialValidatorTest {
             row.getCell(2).getNumericCellValue(),
             row.getCell(0).getStringCellValue(),
             1),
-        validateExcelDataTemplate(file));
+        materialValidator.validateExcelDataTemplate(file));
   }
 
   @Test
@@ -288,10 +301,10 @@ class MaterialValidatorTest {
     row.createCell(1, CellType.STRING).setCellValue("CEILING");
     row.createCell(2, CellType.NUMERIC).setCellValue(12.3);
     MultipartFile file = createTestFile(workbook);
-    assertNull(validateExcelDataTemplate(file));
+    assertNull(materialValidator.validateExcelDataTemplate(file));
   }
 
-  private MultipartFile createTestFile(Workbook workbook) throws IOException {
+  public static MultipartFile createTestFile(Workbook workbook) throws IOException {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     workbook.write(output);
     workbook.close();

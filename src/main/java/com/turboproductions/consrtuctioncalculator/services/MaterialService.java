@@ -26,6 +26,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class MaterialService {
   private final MaterialRepository materialRepository;
+  private final MaterialValidator materialValidator = new MaterialValidator();
+  private final ExcelParser excelParser = new ExcelParser();
 
   public ByteArrayInputStream handleExcelExport(List<Material> materials) {
     try (Workbook workbook = new XSSFWorkbook();
@@ -65,9 +67,9 @@ public class MaterialService {
   }
 
   public String handleExcelImport(MultipartFile excelFile) {
-    String errMessage = MaterialValidator.validateExcelDataTemplate(excelFile);
+    String errMessage = materialValidator.validateExcelDataTemplate(excelFile);
     if (errMessage == null) {
-      ExcelImportResult importResult = ExcelParser.parseExcelSheet(excelFile).orElse(null);
+      ExcelImportResult importResult = excelParser.parseExcelSheet(excelFile).orElse(null);
       if (importResult != null) {
         errMessage =
             saveAllMaterials(
@@ -77,35 +79,11 @@ public class MaterialService {
     return errMessage;
   }
 
-  private String saveAllMaterials(List<Material> materials) {
-    try {
-      materialRepository.saveAll(materials);
-      return null;
-    } catch (DataIntegrityViolationException ex) {
-      return "Import names cannot contain any duplicates";
-    }
-  }
-
-  public void deleteMaterialById(UUID id) {
-    if (id != null) {
-      materialRepository.deleteById(id);
-    }
-  }
-
-  public List<Material> getAllMaterials() {
-    return materialRepository.findAll();
-  }
-
-  public Material getMaterial(UUID id) {
-    Optional<Material> material = materialRepository.findById(id);
-    return material.orElse(null);
-  }
-
   public String handleUpdateMaterial(Material material) {
     Material toBeUpdated = getMaterial(material.getMaterialId());
     if (toBeUpdated != null) {
       String errMsg =
-          MaterialValidator.validateMaterialProperties(
+          materialValidator.validateMaterialProperties(
               material.getName(), material.getPricePerSqMeter());
       if (errMsg == null) {
         materialRepository.save(material);
@@ -118,7 +96,7 @@ public class MaterialService {
   public String handleCreateMaterial(Material material) {
     if (material != null) {
       String msg =
-          MaterialValidator.validateMaterialProperties(
+          materialValidator.validateMaterialProperties(
               material.getName(), material.getPricePerSqMeter());
       if (msg == null) {
         materialRepository.save(material);
@@ -126,6 +104,30 @@ public class MaterialService {
       return msg;
     }
     return "Error with Material";
+  }
+
+  public Material getMaterial(UUID id) {
+    Optional<Material> material = materialRepository.findById(id);
+    return material.orElse(null);
+  }
+
+  public void deleteMaterialById(UUID id) {
+    if (id != null) {
+      materialRepository.deleteById(id);
+    }
+  }
+
+  public List<Material> getAllMaterials() {
+    return materialRepository.findAll();
+  }
+
+  private String saveAllMaterials(List<Material> materials) {
+    try {
+      materialRepository.saveAll(materials);
+      return null;
+    } catch (DataIntegrityViolationException ex) {
+      return "Import names cannot contain any duplicates";
+    }
   }
 
   private List<Material> loadDataForTemplate() {

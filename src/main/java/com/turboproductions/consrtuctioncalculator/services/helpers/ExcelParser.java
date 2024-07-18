@@ -14,7 +14,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.web.multipart.MultipartFile;
 
 public class ExcelParser {
-  public static Optional<ExcelImportResult> parseExcelSheet(MultipartFile excelFile) {
+  public Optional<ExcelImportResult> parseExcelSheet(MultipartFile excelFile) {
     try (Workbook workbook = WorkbookFactory.create(excelFile.getInputStream())) {
       List<ImportedRow> results = new ArrayList<>();
       Sheet sheet = workbook.getSheetAt(0);

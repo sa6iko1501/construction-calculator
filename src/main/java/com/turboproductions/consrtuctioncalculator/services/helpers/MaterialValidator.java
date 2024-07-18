@@ -19,7 +19,7 @@ public class MaterialValidator {
    * @return String containing whatever is wrong with the file imported or {@code null} if the file
    *     passes all checks
    */
-  public static String validateExcelDataTemplate(MultipartFile excelFile) {
+  public String validateExcelDataTemplate(MultipartFile excelFile) {
     if (excelFile.isEmpty()) {
       return "Empty file.";
     }
@@ -57,9 +57,10 @@ public class MaterialValidator {
    *
    * @param name the Material name
    * @param pricePerSqM the price per square meter
-   * @return
+   * @return String containing whatever is wrong with the file imported or {@code null} if the file
+   *     * passes all checks
    */
-  public static String validateMaterialProperties(String name, double pricePerSqM) {
+  public String validateMaterialProperties(String name, double pricePerSqM) {
     if (name == null || name.isBlank() || name.isEmpty()) {
       return "Invalid value for name.";
     }
