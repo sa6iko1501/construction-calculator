@@ -4,6 +4,7 @@ package com.turboproductions.consrtuctioncalculator.services;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -145,9 +146,11 @@ class MaterialServiceTest {
             new ImportedRow("Suspended Ceiling Tiles", "CEILING", 15.99));
     ExcelImportResult excelImportResult = new ExcelImportResult(rows);
     MultipartFile multipartMock = mock(MultipartFile.class);
-    doReturn(null).when(materialValidator).validateExcelDataTemplate(multipartMock);
-    doReturn(Optional.of(excelImportResult)).when(excelParser).parseExcelSheet(multipartMock);
-    assertNull(materialService.handleExcelImport(multipartMock));
+    when(materialValidator.validateExcelDataTemplate(any(MultipartFile.class))).thenReturn(null);
+    when(excelParser.parseExcelSheet(any(MultipartFile.class)))
+        .thenReturn(Optional.of(excelImportResult));
+    String result = materialService.handleExcelImport(multipartMock);
+    assertNull(result);
   }
 
   @Test

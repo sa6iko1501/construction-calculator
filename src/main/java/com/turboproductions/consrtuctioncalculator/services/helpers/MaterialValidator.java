@@ -5,9 +5,15 @@ import com.turboproductions.consrtuctioncalculator.models.MaterialType;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+@Component
 public class MaterialValidator {
   private static final String BAD_CELL_ERR_MSG = "Bad cell at cell row '%s'.";
 

@@ -11,8 +11,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+@Component
 public class ExcelParser {
   public Optional<ExcelImportResult> parseExcelSheet(MultipartFile excelFile) {
     try (Workbook workbook = WorkbookFactory.create(excelFile.getInputStream())) {

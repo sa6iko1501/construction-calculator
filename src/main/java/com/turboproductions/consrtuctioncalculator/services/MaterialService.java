@@ -26,8 +26,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class MaterialService {
   private final MaterialRepository materialRepository;
-  private final MaterialValidator materialValidator = new MaterialValidator();
-  private final ExcelParser excelParser = new ExcelParser();
+  private final MaterialValidator materialValidator;
+  private final ExcelParser excelParser;
 
   public ByteArrayInputStream handleExcelExport(List<Material> materials) {
     try (Workbook workbook = new XSSFWorkbook();
