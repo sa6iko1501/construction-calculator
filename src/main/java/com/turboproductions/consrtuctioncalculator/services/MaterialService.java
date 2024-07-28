@@ -139,10 +139,12 @@ public class MaterialService {
     return List.of(
         new Material("Blue Paint", MaterialType.WALL, 0.40),
         new Material("Red Paint", MaterialType.WALL, 0.42),
-        new Material("Tiles", MaterialType.FLOOR, 6.50),
+        new Material("Ceramic Tiles", MaterialType.FLOOR, 6.50),
         new Material("Wooden Tiles", MaterialType.FLOOR, 9.69),
         new Material("Wallpaper", MaterialType.WALL, 8.20),
-        new Material("DryWall", MaterialType.WALL, 4.20));
+        new Material("Drywall", MaterialType.WALL, 4.20),
+        new Material("Ceiling Tile", MaterialType.CEILING, 6.60),
+        new Material("Hanged Ceiling", MaterialType.CEILING, 7.17));
   }
 
   private Material toMaterial(ImportedRow importedRow) {

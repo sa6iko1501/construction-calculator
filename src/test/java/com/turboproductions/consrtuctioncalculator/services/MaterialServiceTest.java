@@ -35,6 +35,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -86,17 +87,23 @@ class MaterialServiceTest {
       Sheet sheet = workbook.getSheet("Template for importing");
       assertNotNull(sheet);
 
-      Row firstRow = sheet.getRow(0);
-      assertNotNull(firstRow);
-      assertEquals("Blue Paint", firstRow.getCell(0).getStringCellValue());
-      assertEquals("WALL", firstRow.getCell(1).getStringCellValue());
-      assertEquals(0.40, firstRow.getCell(2).getNumericCellValue());
+      Row wallRow = sheet.getRow(0);
+      assertNotNull(wallRow);
+      assertEquals("Blue Paint", wallRow.getCell(0).getStringCellValue());
+      assertEquals("WALL", wallRow.getCell(1).getStringCellValue());
+      assertEquals(0.40, wallRow.getCell(2).getNumericCellValue());
 
-      Row lastRow = sheet.getRow(5);
-      assertNotNull(lastRow);
-      assertEquals("DryWall", lastRow.getCell(0).getStringCellValue());
-      assertEquals("WALL", lastRow.getCell(1).getStringCellValue());
-      assertEquals(4.20, lastRow.getCell(2).getNumericCellValue());
+      Row floorRow = sheet.getRow(3);
+      assertNotNull(floorRow);
+      assertEquals("Wooden Tiles", floorRow.getCell(0).getStringCellValue());
+      assertEquals("FLOOR", floorRow.getCell(1).getStringCellValue());
+      assertEquals(9.69, floorRow.getCell(2).getNumericCellValue());
+
+      Row ceilingRow = sheet.getRow(7);
+      assertNotNull(ceilingRow);
+      assertEquals("Hanged Ceiling", ceilingRow.getCell(0).getStringCellValue());
+      assertEquals("CEILING", ceilingRow.getCell(1).getStringCellValue());
+      assertEquals(7.17, ceilingRow.getCell(2).getNumericCellValue());
     }
   }
 
@@ -127,7 +134,7 @@ class MaterialServiceTest {
 
   @Test
   void testGetAllMaterials() {
-    when(materialRepository.findAll()).thenReturn(mockMaterials);
+    when(materialRepository.findAll(any(Sort.class))).thenReturn(mockMaterials);
 
     List<Material> result = materialService.getAllMaterials();
 

@@ -4,10 +4,10 @@ package com.turboproductions.consrtuctioncalculator.controllers;
 import com.turboproductions.consrtuctioncalculator.models.Material;
 import com.turboproductions.consrtuctioncalculator.models.MaterialType;
 import com.turboproductions.consrtuctioncalculator.models.RoomCalculation;
+import com.turboproductions.consrtuctioncalculator.models.dto.RoomCalculationDTO;
 import com.turboproductions.consrtuctioncalculator.services.MaterialService;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,10 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/calculation")
 public class CalculationController {
   private final MaterialService materialService;
+
+  public CalculationController(MaterialService materialService) {
+    this.materialService = materialService;
+  }
 
   @GetMapping("/rooms")
   public String getSelectRoomsPage(Model model) {
@@ -32,9 +35,9 @@ public class CalculationController {
     if (numRooms <= 0 || numRooms > 100) {
       return "homepage";
     }
-    List<RoomCalculation> rooms = new ArrayList<>();
+    RoomCalculationDTO roomsDTO = new RoomCalculationDTO(new ArrayList<>());
     for (int i = 0; i < numRooms; i++) {
-      rooms.add(new RoomCalculation());
+      roomsDTO.addRoomCalculation(new RoomCalculation());
     }
     List<Material> availableMaterials = materialService.getAllMaterials();
     if (availableMaterials.size() >= 3) {
@@ -51,7 +54,7 @@ public class CalculationController {
       model.addAttribute("floorMaterials", floorMaterials);
       model.addAttribute("wallMaterials", wallMaterials);
       model.addAttribute("ceilingMaterials", ceilingMaterials);
-      model.addAttribute("rooms", rooms);
+      model.addAttribute("roomsDTO", roomsDTO);
       return "calculation-page";
     }
     model.addAttribute("message", "No available materials.");
@@ -59,7 +62,8 @@ public class CalculationController {
   }
 
   @PostMapping("/select-materials")
-  public String getRoomDetails(@ModelAttribute("rooms") List<RoomCalculation> rooms ,Model model) {
+  public String getRoomDetails(
+      @ModelAttribute("roomsDTO") RoomCalculationDTO roomsDTO, Model model) {
     return "homepage";
   }
 }
