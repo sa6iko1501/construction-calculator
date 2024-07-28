@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Home</title>
+    <title><!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Select number of rooms</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         html, body {
@@ -16,6 +20,9 @@
             flex-direction: column;
             height: 100%;
         }
+        .navbar, .footer {
+            flex-shrink: 0;
+        }
         .content {
             flex: 1;
             display: flex;
@@ -24,6 +31,9 @@
             align-items: center;
             text-align: center;
             overflow: hidden;
+        }
+        .content h1, .content p {
+            margin: 0;
         }
     </style>
 </head>
@@ -38,7 +48,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto" style="font-weight: bold">
                 <li class="nav-item">
-                    <a class="nav-link"  href="/home">Home</a>
+                    <a class="nav-link" href="/home">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Login</a>
@@ -52,26 +62,27 @@
 
     <!-- Content Section -->
     <div class="content">
+        <div class="container">
+            <h2>Select the number of rooms you wish to calculate</h2>
+            <form th:action="@{/calculation/select-materials}" method="get">
+                <div class="form-group">
+                    <input type="number" step="1" id="numRooms" name="numRooms" value="1" placeholder="1" class="form-control" required max="100" min="1">
+                    <div class="invalid-feedback">
+                        Please enter a whole number greater than 0.
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Done</button>
+            </form>
+        </div>
         <div th:if="${message}" class="alert alert-info" style="margin-top: 1.5%" role="alert">
             <p th:text="${message}"></p>
-        </div>
-        <div class="jumbotron w-100">
-            <h1 class="display-4" style="margin: 5%">Welcome to Construction Calculator!</h1>
-                <p class="lead" style="margin: 2.5%">We aim to make indoor renovation and development easier for both pros and DIY enthusiasts! </p>
-            <a class="btn btn-primary btn-lg" style="width: 8.5% ;margin-bottom: 2.5%" href="#" role="button">Learn more</a>
-            <p class="display-6" style=" font-size: 150% ">Give us a try or load your custom data</p>
-            <a class="btn btn-primary btn-lg" style="width: 8.5% ;margin-right: 0.25%" href="/calculation/rooms" role="button">Try it out</a>
-            <a class="btn btn-primary btn-lg" style="width: 8.5% ;margin-right: 0.25%" href="/material" role="button">Materials</a>
-            <a class="btn btn-primary btn-lg" style="width: 8.5% ;margin-left: 0.25%" href="/material/import" role="button">Import data</a>
         </div>
     </div>
 
 
 
-
-
     <!-- Footer -->
-    <footer class="footer bg-light text-center" style="flex-shrink: 0">
+    <footer class="footer bg-light text-center">
         <div class="container">
             <span class="text-muted">&copy; 2024 Construction Calculator. All rights reserved.</span>
         </div>

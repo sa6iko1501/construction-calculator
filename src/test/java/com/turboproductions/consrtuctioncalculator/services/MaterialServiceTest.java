@@ -42,9 +42,7 @@ class MaterialServiceTest {
   @Mock private MaterialRepository materialRepository;
   @Mock private MaterialValidator materialValidator;
   @Mock private ExcelParser excelParser;
-
   @InjectMocks private MaterialService materialService;
-
   private List<Material> mockMaterials;
 
   @BeforeEach
@@ -52,7 +50,8 @@ class MaterialServiceTest {
     mockMaterials =
         Arrays.asList(
             new Material("Material1", MaterialType.WALL, 10.0),
-            new Material("Material2", MaterialType.FLOOR, 20.0));
+            new Material("Material2", MaterialType.FLOOR, 20.0),
+            new Material("Material3", MaterialType.CEILING, 30.0));
   }
 
   @Test
@@ -133,8 +132,22 @@ class MaterialServiceTest {
     List<Material> result = materialService.getAllMaterials();
 
     assertNotNull(result);
-    assertEquals(2, result.size());
+    assertEquals(3, result.size());
     assertEquals(mockMaterials, result);
+  }
+
+  @Test
+  void filterByMaterialTypeTest() {
+    List<Material> floorMaterials = materialService.filterByType(mockMaterials, MaterialType.FLOOR);
+    List<Material> ceilingMaterials =
+        materialService.filterByType(mockMaterials, MaterialType.CEILING);
+    List<Material> wallMaterials = materialService.filterByType(mockMaterials, MaterialType.WALL);
+    assertEquals(1, floorMaterials.size());
+    assertEquals(1, ceilingMaterials.size());
+    assertEquals(1, wallMaterials.size());
+    assertEquals(MaterialType.FLOOR, floorMaterials.getFirst().getType());
+    assertEquals(MaterialType.WALL, wallMaterials.getFirst().getType());
+    assertEquals(MaterialType.CEILING, ceilingMaterials.getFirst().getType());
   }
 
   @Test

@@ -1,9 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Calculation</title>
+    <title><!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Update a material</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         html, body {
@@ -44,7 +48,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto" style="font-weight: bold">
                 <li class="nav-item">
-                    <a class="nav-link"      href="/home">Home</a>
+                    <a class="nav-link" href="/home">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Login</a>
@@ -58,6 +62,72 @@
 
     <!-- Content Section -->
     <div class="content">
+        <div class="container">
+            <h2>Select Materials for rooms</h2>
+            <form th:action="@{/submit-rooms}" method="post" th:object="${rooms}">
+                <div th:each="room : ${rooms}">
+                    <div th:object="${room}">
+                    <h4>Room [[${room.floorSqM}]]</h4>
+                    <div class="form-group">
+                        <label for="floorSqM">Floor Square Meters:</label>
+                        <input type="number" id="floorSqM" class="form-control" th:field="*{floorSqM}" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="floorMaterial">Floor Material:</label>
+                        <select class="form-control" th:field="*{floorMaterial}">
+                            <option th:each="material : ${floorMaterials}"
+                                    th:value="${material.name}"
+                                    th:text="${material.name} + ' ($' + ${material.pricePerSqMeter} + '/sqm)'">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="floorMaterialPrice">Floor Material Price per Sqm:</label>
+                        <input type="number" class="form-control" th:field="*{floorMaterialPrice}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="wallSqM">Wall Square Meters:</label>
+                        <input type="number" class="form-control" th:field="*{wallSqM}" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="wallMaterial">Wall Material:</label>
+                        <select class="form-control" th:field="*{wallMaterial}">
+                            <option th:each="material : ${wallMaterials}"
+                                    th:value="${material.name}"
+                                    th:text="${material.name} + ' ($' + ${material.pricePerSqMeter} + '/sqm)'">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="wallMaterialPrice">Wall Material Price per Sqm:</label>
+                        <input type="number" class="form-control" th:field="*{wallMaterialPrice}" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="ceilingSqM">Ceiling Square Meters:</label>
+                        <input type="number" class="form-control" th:field="*{ceilingSqM}" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ceilingMaterial">Ceiling Material:</label>
+                        <select class="form-control" th:field="*{ceilingMaterial}">
+                            <option th:each="material : ${ceilingMaterials}"
+                                    th:value="${material.name}"
+                                    th:text="${material.name} + ' ($' + ${material.pricePerSqMeter} + '/sqm)'">
+                            </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="ceilingMaterialPrice">Ceiling Material Price per Sqm:</label>
+                        <input type="number" class="form-control" th:field="*{ceilingMaterialPrice}" readonly>
+                    </div>
+                    <hr>
+                </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+        <div th:if="${message}" class="alert alert-info" style="margin-top: 1.5%" role="alert">
+            <p th:text="${message}"></p>
+        </div>
     </div>
 
 
@@ -70,9 +140,45 @@
     </footer>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var rooms = /*[[${rooms}]]*/ [];
+        rooms.forEach(function(room, index) {
+            var floorSelectElement = document.getElementById('floorMaterial' + index);
+            var floorPriceElement = document.getElementById('floorMaterialPrice' + index);
+            floorSelectElement.addEventListener('change', function() {
+                var selectedOption = floorSelectElement.options[floorSelectElement.selectedIndex];
+                var priceText = selectedOption.text.match(/\$([0-9.]+)\/sqm/);
+                if (priceText) {
+                    floorPriceElement.value = priceText[1];
+                }
+            });
+
+            var wallSelectElement = document.getElementById('wallMaterial' + index);
+            var wallPriceElement = document.getElementById('wallMaterialPrice' + index);
+            wallSelectElement.addEventListener('change', function() {
+                var selectedOption = wallSelectElement.options[wallSelectElement.selectedIndex];
+                var priceText = selectedOption.text.match(/\$([0-9.]+)\/sqm/);
+                if (priceText) {
+                    wallPriceElement.value = priceText[1];
+                }
+            });
+
+            var ceilingSelectElement = document.getElementById('ceilingMaterial' + index);
+            var ceilingPriceElement = document.getElementById('ceilingMaterialPrice' + index);
+            ceilingSelectElement.addEventListener('change', function() {
+                var selectedOption = ceilingSelectElement.options[ceilingSelectElement.selectedIndex];
+                var priceText = selectedOption.text.match(/\$([0-9.]+)\/sqm/);
+                if (priceText) {
+                    ceilingPriceElement.value = priceText[1];
+                }
+            });
+        });
+    });
+</script>
+
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
-

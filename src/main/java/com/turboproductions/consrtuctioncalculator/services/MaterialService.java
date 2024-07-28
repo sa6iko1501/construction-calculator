@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -118,7 +119,11 @@ public class MaterialService {
   }
 
   public List<Material> getAllMaterials() {
-    return materialRepository.findAll();
+    return materialRepository.findAll(Sort.by(Sort.Direction.ASC, "type"));
+  }
+
+  public List<Material> filterByType(List<Material> materials, MaterialType materialType) {
+    return materials.stream().filter(m -> m.getType() == materialType).toList();
   }
 
   private String saveAllMaterials(List<Material> materials) {
