@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Home</title>
+    <title>Update a material</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         html, body {
@@ -16,6 +16,9 @@
             flex-direction: column;
             height: 100%;
         }
+        .navbar, .footer {
+            flex-shrink: 0;
+        }
         .content {
             flex: 1;
             display: flex;
@@ -24,6 +27,9 @@
             align-items: center;
             text-align: center;
             overflow: hidden;
+        }
+        .content h1, .content p {
+            margin: 0;
         }
     </style>
 </head>
@@ -38,7 +44,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto" style="font-weight: bold">
                 <li class="nav-item">
-                    <a class="nav-link"  href="/home">Home</a>
+                    <a class="nav-link" href="/home">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link"  href="/calculation/calculations">Calculations</a>
@@ -58,26 +64,61 @@
 
     <!-- Content Section -->
     <div class="content">
+       <div class="card mt-3" th:object="${calculation}">
+            <div class="card-header">
+                <span th:text="*{name}"></span>
+            </div>
+           <div class="card-body">
+                <p class="card-text"><strong>Rooms:</strong> <span th:text="*{numberOfRooms}"></span></p>
+               <p class="card-text"><strong>Total area of construction:</strong> <span th:text="*{squareMeters}"></span></p>
+               <p class="card-text"><strong>Total price of construction:</strong> <span th:text="*{calculationPrice}"></span></p>
+               <p class="card-text"><strong>Date:</strong> <span th:text="*{date}"></span></p>
+           </div>
+       </div>
+        <h2>Rooms Info</h2>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Room</th>
+                <th>Floor</th>
+                <th>Floor Area</th>
+                <th>Walls</th>
+                <th>Wall Area</th>
+                <th>Ceiling</th>
+                <th>Ceiling Area</th>
+                <th>Total Area</th>
+                <th>Floor Price</th>
+                <th>Wall Price</th>
+                <th>Ceiling Price</th>
+                <th>Total Price</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="room : ${rooms}">
+                <td th:text="${room.roomNumber}"></td>
+                <td th:text="${room.floorMaterial}"></td>
+                <td th:text="${room.floorSqM}"></td>
+                <td th:text="${room.wallMaterial}"></td>
+                <td th:text="${room.wallSqM}"></td>
+                <td th:text="${room.ceilingMaterial}"></td>
+                <td th:text="${room.ceilingSqM}"></td>
+                <td th:text="${room.roomArea}"></td>
+                <td th:text="${room.floorMaterialPrice}"></td>
+                <td th:text="${room.wallMaterialPrice}"></td>
+                <td th:text="${room.ceilingMaterialPrice}"></td>
+                <td th:text="${room.roomPrice}"></td>
+            </tr>
+            </tbody>
+        </table>
         <div th:if="${message}" class="alert alert-info" style="margin-top: 1.5%" role="alert">
             <p th:text="${message}"></p>
-        </div>
-        <div class="jumbotron w-100">
-            <h1 class="display-4" style="margin: 5%">Welcome to Construction Calculator!</h1>
-                <p class="lead" style="margin: 2.5%">We aim to make indoor renovation and development easier for both pros and DIY enthusiasts! </p>
-            <a class="btn btn-primary btn-lg" style="width: 8.5% ;margin-bottom: 2.5%" href="#" role="button">Learn more</a>
-            <p class="display-6" style=" font-size: 150% ">Give us a try or load your custom data</p>
-            <a class="btn btn-primary btn-lg" style="width: 8.5% ;margin-right: 0.25%" href="/calculation/rooms" role="button">Try it out</a>
-            <a class="btn btn-primary btn-lg" style="width: 8.5% ;margin-right: 0.25%" href="/material" role="button">Materials</a>
-            <a class="btn btn-primary btn-lg" style="width: 8.5% ;margin-left: 0.25%" href="/material/import" role="button">Import data</a>
         </div>
     </div>
 
 
 
-
-
     <!-- Footer -->
-    <footer class="footer bg-light text-center" style="flex-shrink: 0">
+    <footer class="footer bg-light text-center">
         <div class="container">
             <span class="text-muted">&copy; 2024 Construction Calculator. All rights reserved.</span>
         </div>
@@ -89,3 +130,4 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+

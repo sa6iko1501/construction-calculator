@@ -49,6 +49,12 @@
                     <a class="nav-link" href="/home">Home</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link"  href="/calculation/calculations">Calculations</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link"  href="/material">Materials</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="#">Login</a>
                 </li>
                 <li class="nav-item">
@@ -62,7 +68,11 @@
     <div class="content">
         <div class="container">
             <h2>Select materials for rooms</h2>
-            <form th:action="@{/calculation/select-materials}" th:object="${roomsDTO}" method="post">
+            <form th:action="@{/calculation/select-materials}" th:object="${calculationDto}" method="post">
+                <div>
+                    <label for="name">Calculation Name</label>
+                    <input type="text" id="name" name="name" placeholder="The name under which the calculation will show up in the 'Calculations' tab" th:field="*{calculationName}" class="form-control" required>
+                </div>
                 <div th:each="room, roomStat : *{rooms}">
                     <div class="card  mb-4">
                         <div class="card-header">
@@ -117,7 +127,7 @@
                         </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Update Material</button>
+                <button type="submit" class="btn btn-primary">Calculate</button>
             </form>
         </div>
         <div th:if="${message}" class="alert alert-info" style="margin-top: 1.5%" role="alert">

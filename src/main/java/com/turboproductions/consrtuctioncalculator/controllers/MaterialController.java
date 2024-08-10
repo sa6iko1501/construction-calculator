@@ -89,15 +89,11 @@ public class MaterialController {
 
   @GetMapping("/update/{id}")
   String getUpdateMaterialPage(Model model, @PathVariable("id") UUID id) {
-    if (id != null) {
-      Material material = materialService.getMaterial(id);
-      if (material != null) {
-        model.addAttribute("material", material);
-        model.addAttribute("materialTypes", MaterialType.values());
-        return "update-material-page";
-      }
-      model.addAttribute("message", "Invalid material.");
-      return "homepage";
+    Material material = materialService.getMaterial(id);
+    if (material != null) {
+      model.addAttribute("material", material);
+      model.addAttribute("materialTypes", MaterialType.values());
+      return "update-material-page";
     }
     model.addAttribute("message", "Invalid material.");
     return "homepage";
