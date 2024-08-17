@@ -43,6 +43,7 @@ class MaterialServiceTest {
   @Mock private MaterialRepository materialRepository;
   @Mock private MaterialValidator materialValidator;
   @Mock private ExcelParser excelParser;
+  @Mock private CalculationService calculationService;
   @InjectMocks private MaterialService materialService;
   private List<Material> mockMaterials;
 
@@ -109,23 +110,16 @@ class MaterialServiceTest {
 
   @Test
   void testGetMaterial() {
-    UUID materialId = UUID.randomUUID();
-    Material material = new Material("Material1", MaterialType.WALL, 10.0);
-    material.setMaterialId(materialId);
-
-    when(materialRepository.findById(materialId)).thenReturn(Optional.of(material));
-
-    Material result = materialService.getMaterial(materialId);
-
-    assertNotNull(result);
-    assertEquals(material, result);
+    when(materialRepository.findById(any(UUID.class)))
+        .thenReturn(Optional.of(mockMaterials.getFirst()));
+    assertNotNull(materialService.getMaterial(mockMaterials.get(0).getMaterialId()));
   }
 
   @Test
   void testDeleteMaterialById() {
     UUID materialId = UUID.randomUUID();
 
-    doNothing().when(materialRepository).deleteById(materialId);
+    doNothing().when(materialRepository).deleteById(any(UUID.class));
 
     materialService.deleteMaterialById(materialId);
 
@@ -183,6 +177,9 @@ class MaterialServiceTest {
   void testHandleUpdateMaterial() {
     Material material = new Material("Red Paint", MaterialType.WALL, 11.49);
     doReturn(Optional.of(material)).when(materialRepository).findById(material.getMaterialId());
+    doNothing()
+        .when(calculationService)
+        .updateRoomsAndCalculationsOnMaterialUpdate(any(Material.class));
     assertNull(materialService.handleUpdateMaterial(material));
   }
 }

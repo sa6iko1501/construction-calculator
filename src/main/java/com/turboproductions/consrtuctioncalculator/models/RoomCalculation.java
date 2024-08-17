@@ -71,27 +71,18 @@ public class RoomCalculation {
       ConstructionCalculation constructionCalculation,
       String floorMaterial,
       double floorSqM,
-      double floorMaterialPrice,
       String wallMaterial,
       double wallSqM,
-      double wallMaterialPrice,
       String ceilingMaterial,
-      double ceilingSqM,
-      double ceilingMaterialPrice,
-      double roomPrice) {
+      double ceilingSqM) {
     this.constructionCalculation = constructionCalculation;
     this.roomId = UUID.randomUUID();
     this.floorMaterial = floorMaterial;
     this.floorSqM = floorSqM;
-    this.floorMaterialPrice = floorMaterialPrice;
     this.wallMaterial = wallMaterial;
     this.wallSqM = wallSqM;
-    this.wallMaterialPrice = wallMaterialPrice;
     this.ceilingMaterial = ceilingMaterial;
     this.ceilingSqM = ceilingSqM;
-    this.ceilingMaterialPrice = ceilingMaterialPrice;
-    this.roomArea = floorSqM + wallSqM + ceilingSqM;
-    this.roomPrice = roomPrice;
   }
 
   public RoomCalculation() {

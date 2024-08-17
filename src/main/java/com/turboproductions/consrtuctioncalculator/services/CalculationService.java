@@ -10,7 +10,12 @@ import com.turboproductions.consrtuctioncalculator.models.RoomCalculation;
 import com.turboproductions.consrtuctioncalculator.services.helpers.RoomValidator;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -26,26 +31,77 @@ public class CalculationService {
   public String handleConstructionCalculationCreation(
       ConstructionCalculation calculation, List<RoomCalculation> rooms) {
     calculateRoomDetails(rooms);
+    setRoomNumbers(rooms);
     String errMsg = roomValidator.validateRooms(rooms);
     if (errMsg == null) {
       setConstructionRooms(calculation, rooms);
       calculateConstructionDetails(calculation);
     }
-    constructionCalculationRepository.save(calculation);
+    saveConstructionCalculation(calculation);
     return errMsg;
   }
 
-  public ConstructionCalculation getCalculation(UUID id) {
-    Optional<ConstructionCalculation> calculation = constructionCalculationRepository.findById(id);
-    return calculation.orElse(null);
+  public void updateRoomsAndCalculationsOnMaterialUpdate(Material material) {
+    List<RoomCalculation> roomCalculations = new ArrayList<>();
+    switch (material.getType()) {
+      case WALL:
+        {
+          roomCalculations =
+              roomCalculationRepository.findRoomCalculationsByWallMaterial(material.getName());
+          if (!roomCalculations.isEmpty()) {
+            roomCalculations.forEach(x -> x.setWallMaterialPrice(material.getPricePerSqMeter()));
+          } else {
+            return;
+          }
+          break;
+        }
+      case FLOOR:
+        {
+          roomCalculations =
+              roomCalculationRepository.findRoomCalculationsByFloorMaterial(material.getName());
+          if (!roomCalculations.isEmpty()) {
+            roomCalculations.forEach(x -> x.setFloorMaterialPrice(material.getPricePerSqMeter()));
+          } else {
+            return;
+          }
+
+          break;
+        }
+      case CEILING:
+        {
+          roomCalculations =
+              roomCalculationRepository.findRoomCalculationsByCeilingMaterial(material.getName());
+          if (!roomCalculations.isEmpty()) {
+            roomCalculations.forEach(x -> x.setCeilingMaterialPrice(material.getPricePerSqMeter()));
+          } else {
+            return;
+          }
+          break;
+        }
+    }
+    calculateRoomDetails(roomCalculations);
+    roomCalculations.forEach(
+        x -> {
+          calculateConstructionDetails(x.getConstructionCalculation());
+          saveConstructionCalculation(x.getConstructionCalculation());
+        });
   }
 
   public void deleteCalculationById(UUID id) {
     constructionCalculationRepository.deleteById(id);
   }
 
+  public void saveConstructionCalculation(ConstructionCalculation calculation) {
+    constructionCalculationRepository.save(calculation);
+  }
+
   public List<ConstructionCalculation> getAllCalculations() {
     return constructionCalculationRepository.findAll(Sort.by(Sort.Direction.DESC, "date"));
+  }
+
+  public ConstructionCalculation getCalculation(UUID id) {
+    Optional<ConstructionCalculation> calculation = constructionCalculationRepository.findById(id);
+    return calculation.orElse(null);
   }
 
   private void calculateConstructionDetails(ConstructionCalculation calculation) {
@@ -69,10 +125,7 @@ public class CalculationService {
 
   private void calculateRoomDetails(List<RoomCalculation> rooms) {
     List<Material> materials = materialRepository.findAll();
-    int roomNumber = 0;
     for (RoomCalculation room : rooms) {
-      roomNumber++;
-      room.setRoomNumber(String.format("Room %s", roomNumber));
       Material wallMaterial =
           materials.stream()
               .filter(m -> m.getName().equals(room.getWallMaterial()))
@@ -117,6 +170,12 @@ public class CalculationService {
       room.setFloorMaterialPrice(floorPrice.doubleValue());
       room.setRoomPrice(roomPrice.doubleValue());
       room.setRoomArea(roomArea.doubleValue());
+    }
+  }
+
+  private void setRoomNumbers(List<RoomCalculation> rooms) {
+    for (int i = 0; i < rooms.size(); i++) {
+      rooms.get(i).setRoomNumber(String.format("Room %s", i + 1));
     }
   }
 

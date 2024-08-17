@@ -16,7 +16,10 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
@@ -27,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class MaterialService {
   private final MaterialRepository materialRepository;
+  private final CalculationService calculationService;
   private final MaterialValidator materialValidator;
   private final ExcelParser excelParser;
 
@@ -88,6 +92,7 @@ public class MaterialService {
               material.getName(), material.getPricePerSqMeter());
       if (errMsg == null) {
         materialRepository.save(material);
+        calculationService.updateRoomsAndCalculationsOnMaterialUpdate(material);
       }
       return errMsg;
     }
