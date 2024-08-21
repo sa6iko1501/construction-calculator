@@ -16,6 +16,7 @@ import com.turboproductions.consrtuctioncalculator.models.ConstructionCalculatio
 import com.turboproductions.consrtuctioncalculator.models.Material;
 import com.turboproductions.consrtuctioncalculator.models.MaterialType;
 import com.turboproductions.consrtuctioncalculator.models.RoomCalculation;
+import com.turboproductions.consrtuctioncalculator.models.User;
 import com.turboproductions.consrtuctioncalculator.services.helpers.RoomValidator;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -30,7 +31,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Sort;
 
 @ExtendWith(MockitoExtension.class)
 public class CalculationServiceTest {
@@ -68,7 +68,8 @@ public class CalculationServiceTest {
   @Test
   void handleConstructionCalculationCreationTest() {
     when(materialRepository.findAll()).thenReturn(mockMaterials);
-    calculationService.handleConstructionCalculationCreation(mockCalculation, mockRooms);
+    calculationService.handleConstructionCalculationCreation(
+        mockCalculation, mockRooms, new User());
     // Assert first room prices and area (Desmos Scientific Calculator used to manually calculate
     // prices with test data)
     assertEquals(77.46, mockRooms.get(0).getFloorMaterialPrice());
@@ -172,8 +173,9 @@ public class CalculationServiceTest {
 
   @Test
   void getAllCalculationsTest() {
-    when(calculationRepository.findAll(any(Sort.class))).thenReturn(List.of(mockCalculation));
-    assertNotNull(calculationService.getAllCalculations());
+    when(calculationRepository.findConstructionCalculationsByUserOrderByDate(any(User.class)))
+        .thenReturn(List.of(mockCalculation));
+    assertNotNull(calculationService.getAllCalculations(new User()));
   }
 
   @Test

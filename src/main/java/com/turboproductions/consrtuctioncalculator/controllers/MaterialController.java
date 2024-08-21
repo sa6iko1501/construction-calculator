@@ -3,6 +3,7 @@ package com.turboproductions.consrtuctioncalculator.controllers;
 
 import com.turboproductions.consrtuctioncalculator.models.Material;
 import com.turboproductions.consrtuctioncalculator.models.MaterialType;
+import com.turboproductions.consrtuctioncalculator.models.User;
 import com.turboproductions.consrtuctioncalculator.services.MaterialService;
 import java.io.ByteArrayInputStream;
 import java.util.List;
@@ -11,6 +12,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/material")
@@ -30,13 +33,14 @@ public class MaterialController {
   }
 
   @GetMapping("/import")
-  String getImportPage(Model model) {
+  String getImportPage() {
     return "import-data-page";
   }
 
   @GetMapping("/export")
-  ResponseEntity<InputStreamResource> exportMaterials(Model model) {
-    List<Material> materials = materialService.getAllMaterials();
+  ResponseEntity<InputStreamResource> exportMaterials(
+      @AuthenticationPrincipal User authenticatedUser) {
+    List<Material> materials = materialService.getAllMaterials(authenticatedUser);
     ByteArrayInputStream inputStream = materialService.handleExcelExport(materials);
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Disposition", "attachment; filename=materials.xlsx");
@@ -46,9 +50,9 @@ public class MaterialController {
         .body(new InputStreamResource(inputStream));
   }
 
-  @GetMapping()
-  String getMaterialsPage(Model model) {
-    List<Material> materials = materialService.getAllMaterials();
+  @GetMapping("/materials")
+  String getMaterialsPage(Model model, @AuthenticationPrincipal User authenticatedUser) {
+    List<Material> materials = materialService.getAllMaterials(authenticatedUser);
     if (!materials.isEmpty()) {
       model.addAttribute("materials", materials);
     }
@@ -56,14 +60,17 @@ public class MaterialController {
   }
 
   @PostMapping("/import")
-  String importData(Model model, MultipartFile excelFile) {
-    String errMsg = materialService.handleExcelImport(excelFile);
-    model.addAttribute("message", errMsg == null ? "Import Successful!" : errMsg);
-    return "import-data-page";
+  String importData(
+      RedirectAttributes model,
+      MultipartFile excelFile,
+      @AuthenticationPrincipal User authenticatedUser) {
+    String errMsg = materialService.handleExcelImport(excelFile, authenticatedUser);
+    model.addFlashAttribute("message", errMsg == null ? "Import Successful!" : errMsg);
+    return "redirect:/home";
   }
 
   @GetMapping("/template")
-  ResponseEntity<InputStreamResource> getTemplate(Model model) {
+  ResponseEntity<InputStreamResource> getTemplate() {
     ByteArrayInputStream inputStream = materialService.getTemplate();
     HttpHeaders headers = new HttpHeaders();
     headers.add("Content-Disposition", "attachment; filename=materials.xlsx");
@@ -74,13 +81,15 @@ public class MaterialController {
   }
 
   @PostMapping("/delete/{id}")
-  String deleteMaterial(Model model, @PathVariable("id") UUID id) {
+  String deleteMaterial(
+      RedirectAttributes model,
+      @PathVariable("id") UUID id,
+      @AuthenticationPrincipal User authenticatedUser) {
     materialService.deleteMaterialById(id);
-    List<Material> materials = materialService.getAllMaterials();
+    List<Material> materials = materialService.getAllMaterials(authenticatedUser);
     if (!materials.isEmpty()) {
-      model.addAttribute("materials", materials);
-      model.addAttribute("message", "Material successfully deleted");
-      return "materials-page";
+      model.addFlashAttribute("message", "Material successfully deleted");
+      return "redirect:/material/materials";
     } else {
       model.addAttribute("message", "You currently have no materials loaded");
       return "homepage";
@@ -100,12 +109,15 @@ public class MaterialController {
   }
 
   @PostMapping("/update")
-  String updateMaterial(Model model, @ModelAttribute("material") Material material) {
-    String msg = materialService.handleUpdateMaterial(material);
+  String updateMaterial(
+      RedirectAttributes model,
+      @ModelAttribute("material") Material material,
+      @AuthenticationPrincipal User authenticatedUser) {
+    String msg = materialService.handleUpdateMaterial(material, authenticatedUser);
     if (msg != null) {
-      model.addAttribute("message", msg);
+      model.addFlashAttribute("message", msg);
     }
-    return getMaterialsPage(model);
+    return "redirect:/material/materials";
   }
 
   @GetMapping("/create")
@@ -117,11 +129,14 @@ public class MaterialController {
   }
 
   @PostMapping("/create")
-  String createMaterial(Model model, @ModelAttribute("material") Material material) {
-    String errMsg = materialService.handleCreateMaterial(material);
+  String createMaterial(
+      RedirectAttributes model,
+      @ModelAttribute("material") Material material,
+      @AuthenticationPrincipal User authenticatedUser) {
+    String errMsg = materialService.handleCreateMaterial(material, authenticatedUser);
     if (errMsg != null) {
-      model.addAttribute("message", errMsg);
+      model.addFlashAttribute("message", errMsg);
     }
-    return getMaterialsPage(model);
+    return "redirect:/material/materials";
   }
 }

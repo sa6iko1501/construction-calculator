@@ -4,6 +4,7 @@ package com.turboproductions.consrtuctioncalculator.services;
 import com.turboproductions.consrtuctioncalculator.dao.MaterialRepository;
 import com.turboproductions.consrtuctioncalculator.models.Material;
 import com.turboproductions.consrtuctioncalculator.models.MaterialType;
+import com.turboproductions.consrtuctioncalculator.models.User;
 import com.turboproductions.consrtuctioncalculator.models.dto.ExcelImportResult;
 import com.turboproductions.consrtuctioncalculator.models.dto.ImportedRow;
 import com.turboproductions.consrtuctioncalculator.services.helpers.ExcelParser;
@@ -14,7 +15,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -22,7 +22,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -71,26 +70,28 @@ public class MaterialService {
     }
   }
 
-  public String handleExcelImport(MultipartFile excelFile) {
+  public String handleExcelImport(MultipartFile excelFile, User user) {
     String errMessage = materialValidator.validateExcelDataTemplate(excelFile);
     if (errMessage == null) {
       ExcelImportResult importResult = excelParser.parseExcelSheet(excelFile).orElse(null);
       if (importResult != null) {
-        errMessage =
-            saveAllMaterials(
-                importResult.getRows().stream().map(this::toMaterial).collect(Collectors.toList()));
+        List<Material> materialsToBeSaved =
+            importResult.getRows().stream().map(this::toMaterial).toList();
+        materialsToBeSaved.forEach(x -> x.setUser(user));
+        errMessage = saveAllMaterials(materialsToBeSaved);
       }
     }
     return errMessage;
   }
 
-  public String handleUpdateMaterial(Material material) {
+  public String handleUpdateMaterial(Material material, User user) {
     Material toBeUpdated = getMaterial(material.getMaterialId());
     if (toBeUpdated != null) {
       String errMsg =
           materialValidator.validateMaterialProperties(
               material.getName(), material.getPricePerSqMeter());
       if (errMsg == null) {
+        material.setUser(user);
         materialRepository.save(material);
         calculationService.updateRoomsAndCalculationsOnMaterialUpdate(material);
       }
@@ -99,12 +100,13 @@ public class MaterialService {
     return "Error with Material";
   }
 
-  public String handleCreateMaterial(Material material) {
+  public String handleCreateMaterial(Material material, User user) {
     if (material != null) {
       String msg =
           materialValidator.validateMaterialProperties(
               material.getName(), material.getPricePerSqMeter());
       if (msg == null) {
+        material.setUser(user);
         materialRepository.save(material);
       }
       return msg;
@@ -123,8 +125,8 @@ public class MaterialService {
     }
   }
 
-  public List<Material> getAllMaterials() {
-    return materialRepository.findAll(Sort.by(Sort.Direction.ASC, "type"));
+  public List<Material> getAllMaterials(User user) {
+    return materialRepository.findAllByUserOrderByType(user);
   }
 
   public List<Material> filterByType(List<Material> materials, MaterialType materialType) {

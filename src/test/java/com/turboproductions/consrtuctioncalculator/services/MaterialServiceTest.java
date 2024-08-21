@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import com.turboproductions.consrtuctioncalculator.dao.MaterialRepository;
 import com.turboproductions.consrtuctioncalculator.models.Material;
 import com.turboproductions.consrtuctioncalculator.models.MaterialType;
+import com.turboproductions.consrtuctioncalculator.models.User;
 import com.turboproductions.consrtuctioncalculator.models.dto.ExcelImportResult;
 import com.turboproductions.consrtuctioncalculator.models.dto.ImportedRow;
 import com.turboproductions.consrtuctioncalculator.services.helpers.ExcelParser;
@@ -35,7 +36,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -128,9 +128,9 @@ class MaterialServiceTest {
 
   @Test
   void testGetAllMaterials() {
-    when(materialRepository.findAll(any(Sort.class))).thenReturn(mockMaterials);
+    when(materialRepository.findAllByUserOrderByType(any(User.class))).thenReturn(mockMaterials);
 
-    List<Material> result = materialService.getAllMaterials();
+    List<Material> result = materialService.getAllMaterials(new User());
 
     assertNotNull(result);
     assertEquals(3, result.size());
@@ -163,14 +163,14 @@ class MaterialServiceTest {
     when(materialValidator.validateExcelDataTemplate(any(MultipartFile.class))).thenReturn(null);
     when(excelParser.parseExcelSheet(any(MultipartFile.class)))
         .thenReturn(Optional.of(excelImportResult));
-    String result = materialService.handleExcelImport(multipartMock);
+    String result = materialService.handleExcelImport(multipartMock, new User());
     assertNull(result);
   }
 
   @Test
   void testHandleCreateMaterial() {
     Material material = new Material("Red Paint", MaterialType.WALL, 11.49);
-    assertNull(materialService.handleCreateMaterial(material));
+    assertNull(materialService.handleCreateMaterial(material, new User()));
   }
 
   @Test
@@ -180,6 +180,6 @@ class MaterialServiceTest {
     doNothing()
         .when(calculationService)
         .updateRoomsAndCalculationsOnMaterialUpdate(any(Material.class));
-    assertNull(materialService.handleUpdateMaterial(material));
+    assertNull(materialService.handleUpdateMaterial(material, new User()));
   }
 }

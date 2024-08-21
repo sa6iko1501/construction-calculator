@@ -7,6 +7,7 @@ import com.turboproductions.consrtuctioncalculator.dao.RoomCalculationRepository
 import com.turboproductions.consrtuctioncalculator.models.ConstructionCalculation;
 import com.turboproductions.consrtuctioncalculator.models.Material;
 import com.turboproductions.consrtuctioncalculator.models.RoomCalculation;
+import com.turboproductions.consrtuctioncalculator.models.User;
 import com.turboproductions.consrtuctioncalculator.services.helpers.RoomValidator;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -17,7 +18,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,13 +29,14 @@ public class CalculationService {
   private final RoomValidator roomValidator;
 
   public String handleConstructionCalculationCreation(
-      ConstructionCalculation calculation, List<RoomCalculation> rooms) {
+      ConstructionCalculation calculation, List<RoomCalculation> rooms, User user) {
     calculateRoomDetails(rooms);
     setRoomNumbers(rooms);
     String errMsg = roomValidator.validateRooms(rooms);
     if (errMsg == null) {
       setConstructionRooms(calculation, rooms);
       calculateConstructionDetails(calculation);
+      calculation.setUser(user);
     }
     saveConstructionCalculation(calculation);
     return errMsg;
@@ -95,8 +96,8 @@ public class CalculationService {
     constructionCalculationRepository.save(calculation);
   }
 
-  public List<ConstructionCalculation> getAllCalculations() {
-    return constructionCalculationRepository.findAll(Sort.by(Sort.Direction.DESC, "date"));
+  public List<ConstructionCalculation> getAllCalculations(User user) {
+    return constructionCalculationRepository.findConstructionCalculationsByUserOrderByDate(user);
   }
 
   public ConstructionCalculation getCalculation(UUID id) {

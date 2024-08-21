@@ -40,6 +40,11 @@ public class ConstructionCalculation {
   @OneToMany(mappedBy = "constructionCalculation", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<RoomCalculation> roomCalculations;
 
+  @Setter
+  @ManyToOne
+  @JoinColumn(name = "user_id")
+  private User user;
+
   public ConstructionCalculation() {
     this.date = LocalDateTime.now();
     this.calculationId = UUID.randomUUID();

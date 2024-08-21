@@ -4,6 +4,8 @@ package com.turboproductions.consrtuctioncalculator.models;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.util.UUID;
 import lombok.Getter;
@@ -28,6 +30,10 @@ public class Material {
 
   @Column(name = "material_price_perSqM")
   private double pricePerSqMeter;
+
+  @ManyToOne
+  @JoinColumn(name = "user_id", nullable = false)
+  private User user;
 
   public Material(String name, MaterialType type, double pricePerSqMeter) {
     this.materialId = UUID.randomUUID();

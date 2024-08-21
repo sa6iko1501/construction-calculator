@@ -5,15 +5,18 @@ import com.turboproductions.consrtuctioncalculator.models.ConstructionCalculatio
 import com.turboproductions.consrtuctioncalculator.models.Material;
 import com.turboproductions.consrtuctioncalculator.models.MaterialType;
 import com.turboproductions.consrtuctioncalculator.models.RoomCalculation;
+import com.turboproductions.consrtuctioncalculator.models.User;
 import com.turboproductions.consrtuctioncalculator.models.dto.ConstructionCalculationDto;
 import com.turboproductions.consrtuctioncalculator.services.CalculationService;
 import com.turboproductions.consrtuctioncalculator.services.MaterialService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/calculation")
@@ -28,12 +31,15 @@ public class CalculationController {
   }
 
   @GetMapping("/rooms")
-  public String getSelectRoomsPage(Model model) {
+  public String getSelectRoomsPage() {
     return "rooms-number-page";
   }
 
   @GetMapping("/select-materials")
-  public String getSelectMaterialsPage(@RequestParam("numRooms") int numRooms, Model model) {
+  public String getSelectMaterialsPage(
+      @RequestParam("numRooms") int numRooms,
+      Model model,
+      @AuthenticationPrincipal User authenticatedUser) {
     if (numRooms <= 0 || numRooms > 100) {
       return "homepage";
     }
@@ -42,7 +48,7 @@ public class CalculationController {
     for (int i = 0; i < numRooms; i++) {
       calculationDto.addRoomCalculation(new RoomCalculation());
     }
-    List<Material> availableMaterials = materialService.getAllMaterials();
+    List<Material> availableMaterials = materialService.getAllMaterials(authenticatedUser);
     if (availableMaterials.size() >= 3) {
       List<Material> floorMaterials =
           materialService.filterByType(availableMaterials, MaterialType.FLOOR);
@@ -65,24 +71,26 @@ public class CalculationController {
   }
 
   @PostMapping("/select-materials")
-  public String getRoomDetails(
+  public String createRoom(
       @ModelAttribute("roomsDTO") ConstructionCalculationDto constructionCalculationDto,
-      Model model) {
+      RedirectAttributes model,
+      @AuthenticationPrincipal User authenticatedUser) {
     ConstructionCalculation calculation = new ConstructionCalculation();
     calculation.setName(constructionCalculationDto.getCalculationName());
     String message =
         calculationService.handleConstructionCalculationCreation(
-            calculation, constructionCalculationDto.getRooms());
+            calculation, constructionCalculationDto.getRooms(), authenticatedUser);
     if (message != null) {
-      model.addAttribute("message", message);
+      model.addFlashAttribute("message", message);
       return "homepage";
     }
-    return getCalculations(model);
+    return "redirect:calculations";
   }
 
   @GetMapping("/calculations")
-  public String getCalculations(Model model) {
-    List<ConstructionCalculation> calculations = calculationService.getAllCalculations();
+  public String getCalculations(Model model, @AuthenticationPrincipal User authenticatedUser) {
+    List<ConstructionCalculation> calculations =
+        calculationService.getAllCalculations(authenticatedUser);
     if (!calculations.isEmpty()) {
       model.addAttribute("calculations", calculations);
       return "calculations-page";
@@ -104,8 +112,9 @@ public class CalculationController {
   }
 
   @PostMapping("/delete/{id}")
-  public String deleteCalculation(Model model, @PathVariable("id") UUID id) {
+  public String deleteCalculation(RedirectAttributes model, @PathVariable("id") UUID id) {
     calculationService.deleteCalculationById(id);
-    return getCalculations(model);
+    model.addFlashAttribute("message", "Successfully deleted calculation.");
+    return "redirect:calculations";
   }
 }

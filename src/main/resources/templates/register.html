@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Update a material</title>
+    <title>Registration</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         html, body {
@@ -44,16 +44,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto" style="font-weight: bold">
                 <li class="nav-item">
-                    <a class="nav-link" href="/home">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link"  href="/calculation/calculations">Calculations</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link"  href="/material/materials">Materials</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link"  href="/user">Profile</a>
+                    <a class="nav-link" href="/login">Login</a>
                 </li>
             </ul>
         </div>
@@ -62,24 +53,21 @@
     <!-- Content Section -->
     <div class="content">
         <div class="container">
-            <h2>Update a material</h2>
-            <form th:action="@{/material/update}" th:object="${material}" method="post">
+            <h2>Register</h2>
+            <form th:action="@{/register}" th:object="${registerRequest}" method="post">
                 <div class="form-group">
-                    <label for="name">Material Name</label>
-                    <input type="text" id="name" name="name" th:value="${material.name}" th:field="*{name}" class="form-control" required>
+                    <label for="name">Username</label>
+                    <input type="text" id="name" name="name" th:value="username..." th:field="*{username}" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="materialType">Material Type</label>
-                    <select id="materialType" name="materialType" th:field="*{type}" class="form-control">
-                        <option th:each="type : ${materialTypes}" th:value="${type}" th:text="${type}">Material Type</option>
-                    </select>
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" th:value="password..." th:field="*{password}" class="form-control" required/>
                 </div>
                 <div class="form-group">
-                    <label for="pricePerSqm">Price</label>
-                    <input type="number" step="0.01" id="pricePerSqm" name="pricePerSqm" th:value="${material.pricePerSqMeter}" th:field="*{pricePerSqMeter}" class="form-control" required min="0.01">
+                    <label for="confirmPassword">Password</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" th:value="password..." th:field="*{confirmedPassword}" class="form-control" required/>
                 </div>
-                <input type="hidden" id="materialId" name="materialId" th:value="${material.materialId}" th:field="*{materialId}">
-                <button type="submit" class="btn btn-primary">Update Material</button>
+                <button type="submit" class="btn btn-primary">Register</button>
             </form>
         </div>
         <div th:if="${message}" class="alert alert-info" style="margin-top: 1.5%" role="alert">
