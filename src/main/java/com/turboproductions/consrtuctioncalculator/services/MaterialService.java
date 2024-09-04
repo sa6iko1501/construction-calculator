@@ -93,7 +93,7 @@ public class MaterialService {
       if (errMsg == null) {
         material.setUser(user);
         materialRepository.save(material);
-        calculationService.updateRoomsAndCalculationsOnMaterialUpdate(material);
+        calculationService.updateRoomsAndCalculationsOnMaterialUpdate(material, user);
       }
       return errMsg;
     }

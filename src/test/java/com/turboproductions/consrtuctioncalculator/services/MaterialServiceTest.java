@@ -179,7 +179,7 @@ class MaterialServiceTest {
     doReturn(Optional.of(material)).when(materialRepository).findById(material.getMaterialId());
     doNothing()
         .when(calculationService)
-        .updateRoomsAndCalculationsOnMaterialUpdate(any(Material.class));
+        .updateRoomsAndCalculationsOnMaterialUpdate(any(Material.class), any(User.class));
     assertNull(materialService.handleUpdateMaterial(material, new User()));
   }
 }

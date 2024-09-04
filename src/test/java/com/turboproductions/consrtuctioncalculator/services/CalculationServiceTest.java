@@ -4,6 +4,7 @@ package com.turboproductions.consrtuctioncalculator.services;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -42,6 +43,8 @@ public class CalculationServiceTest {
   private List<RoomCalculation> mockRooms;
   private ConstructionCalculation mockCalculation;
   private List<Material> mockMaterials;
+  private User mockUser;
+  private UUID mockUserId;
 
   @BeforeEach
   void setUp() {
@@ -63,13 +66,14 @@ public class CalculationServiceTest {
             new Material("Red Paint", MaterialType.WALL, 0.46),
             new Material("Ceiling Tile", MaterialType.CEILING, 3.99),
             new Material("White Paint", MaterialType.CEILING, 0.80));
+    mockUser = new User();
+    mockUserId = mockUser.getUserId();
   }
 
   @Test
   void handleConstructionCalculationCreationTest() {
-    when(materialRepository.findAll()).thenReturn(mockMaterials);
-    calculationService.handleConstructionCalculationCreation(
-        mockCalculation, mockRooms, new User());
+    when(materialRepository.findAllByUserOrderByType(eq(mockUser))).thenReturn(mockMaterials);
+    calculationService.handleConstructionCalculationCreation(mockCalculation, mockRooms, mockUser);
     // Assert first room prices and area (Desmos Scientific Calculator used to manually calculate
     // prices with test data)
     assertEquals(77.46, mockRooms.get(0).getFloorMaterialPrice());
@@ -109,21 +113,24 @@ public class CalculationServiceTest {
     roomCalculation.setRoomArea(83.6);
 
     // Mock db calls
-    when(roomCalculationRepository.findRoomCalculationsByFloorMaterial(any(String.class)))
+    when(roomCalculationRepository.findRoomCalculationsByUserUUIDAndAndFloorMaterial(
+            eq(mockUserId), eq("Floor Tiles")))
         .thenReturn(
             mockRooms.stream()
                 .filter(x -> x.getFloorMaterial().equals("Floor Tiles"))
                 .collect(Collectors.toList()));
 
-    when(roomCalculationRepository.findRoomCalculationsByWallMaterial(any(String.class)))
+    when(roomCalculationRepository.findRoomCalculationsByUserUUIDAndAndWallMaterial(
+            eq(mockUserId), eq("Wallpaper")))
         .thenReturn(
             mockRooms.stream().filter(x -> x.getWallMaterial().equals("Wallpaper")).toList());
 
-    when(roomCalculationRepository.findRoomCalculationsByCeilingMaterial(any(String.class)))
+    when(roomCalculationRepository.findRoomCalculationsByUserUUIDAndAndCeilingMaterial(
+            eq(mockUserId), eq("Ceiling Tile")))
         .thenReturn(
             mockRooms.stream().filter(x -> x.getCeilingMaterial().equals("Ceiling Tile")).toList());
 
-    when(materialRepository.findAll()).thenReturn(mockMaterials);
+    when(materialRepository.findAllByUserOrderByType(eq(mockUser))).thenReturn(mockMaterials);
 
     // Calls to method after updating materials
     calculationService.updateRoomsAndCalculationsOnMaterialUpdate(
@@ -131,21 +138,24 @@ public class CalculationServiceTest {
             mockMaterials.stream()
                 .filter(x -> x.getName().equals("Floor Tiles"))
                 .findAny()
-                .orElse(null)));
+                .orElse(null)),
+        mockUser);
 
     calculationService.updateRoomsAndCalculationsOnMaterialUpdate(
         Objects.requireNonNull(
             mockMaterials.stream()
                 .filter(x -> x.getName().equals("Wallpaper"))
                 .findAny()
-                .orElse(null)));
+                .orElse(null)),
+        mockUser);
 
     calculationService.updateRoomsAndCalculationsOnMaterialUpdate(
         Objects.requireNonNull(
             mockMaterials.stream()
                 .filter(x -> x.getName().equals("Ceiling Tile"))
                 .findAny()
-                .orElse(null)));
+                .orElse(null)),
+        mockUser);
 
     // Assert prices were successfully updated for the first room(Desmos scientific calculator used
     // to manually calculate prices with test data)

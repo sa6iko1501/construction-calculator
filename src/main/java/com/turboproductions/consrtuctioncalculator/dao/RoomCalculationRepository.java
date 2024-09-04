@@ -14,4 +14,13 @@ public interface RoomCalculationRepository extends JpaRepository<RoomCalculation
   List<RoomCalculation> findRoomCalculationsByWallMaterial(String wallMaterialName);
 
   List<RoomCalculation> findRoomCalculationsByFloorMaterial(String floorMaterialName);
+
+  List<RoomCalculation> findRoomCalculationsByUserUUIDAndAndCeilingMaterial(
+      UUID userId, String ceilingMaterialName);
+
+  List<RoomCalculation> findRoomCalculationsByUserUUIDAndAndWallMaterial(
+      UUID userId, String wallMaterialName);
+
+  List<RoomCalculation> findRoomCalculationsByUserUUIDAndAndFloorMaterial(
+      UUID userId, String wallMaterialName);
 }

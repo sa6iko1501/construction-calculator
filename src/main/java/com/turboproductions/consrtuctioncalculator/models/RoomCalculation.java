@@ -63,6 +63,10 @@ public class RoomCalculation {
   private double roomPrice;
 
   @Setter
+  @Column(name = "user_id")
+  private UUID userUUID;
+
+  @Setter
   @ManyToOne
   @JoinColumn(name = "calculation_id", nullable = false)
   private ConstructionCalculation constructionCalculation;
