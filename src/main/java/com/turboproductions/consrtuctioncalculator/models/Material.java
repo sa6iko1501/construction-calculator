@@ -22,7 +22,7 @@ public class Material {
   @Column(name = "material_id")
   private UUID materialId;
 
-  @Column(name = "material_name", unique = true, nullable = false)
+  @Column(name = "material_name", nullable = false)
   private String name;
 
   @Column(name = "material_type")

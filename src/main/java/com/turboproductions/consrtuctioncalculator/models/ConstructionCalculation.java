@@ -17,7 +17,7 @@ public class ConstructionCalculation {
   private UUID calculationId;
 
   @Setter
-  @Column(name = "calculation_name", unique = true)
+  @Column(name = "calculation_name")
   private String name;
 
   @Setter
