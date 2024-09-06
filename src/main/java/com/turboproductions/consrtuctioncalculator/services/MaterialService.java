@@ -92,7 +92,7 @@ public class MaterialService {
               material.getName(), material.getPricePerSqMeter());
       if (errMsg == null) {
         material.setUser(user);
-        materialRepository.save(material);
+        errMsg = saveMaterial(material);
         calculationService.updateRoomsAndCalculationsOnMaterialUpdate(material, user);
       }
       return errMsg;
@@ -107,7 +107,7 @@ public class MaterialService {
               material.getName(), material.getPricePerSqMeter());
       if (msg == null) {
         material.setUser(user);
-        materialRepository.save(material);
+        msg = saveMaterial(material);
       }
       return msg;
     }
@@ -138,7 +138,16 @@ public class MaterialService {
       materialRepository.saveAll(materials);
       return null;
     } catch (DataIntegrityViolationException ex) {
-      return "Import names cannot contain any duplicates";
+      return "Import names cannot contain any duplicates.";
+    }
+  }
+
+  private String saveMaterial(Material material) {
+    try {
+      materialRepository.save(material);
+      return null;
+    } catch (DataIntegrityViolationException ex) {
+      return String.format("A material with name '%s' already exists.", material.getName());
     }
   }
 

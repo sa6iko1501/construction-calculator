@@ -84,11 +84,11 @@ public class CalculationService {
         }
     }
     calculateRoomDetails(roomCalculations, user);
+    Set<ConstructionCalculation> uniqueConstructionCalculations = new HashSet<>();
     roomCalculations.forEach(
-        x -> {
-          calculateConstructionDetails(x.getConstructionCalculation());
-          saveConstructionCalculation(x.getConstructionCalculation());
-        });
+        x -> uniqueConstructionCalculations.add(x.getConstructionCalculation()));
+    uniqueConstructionCalculations.forEach(this::calculateConstructionDetails);
+    constructionCalculationRepository.saveAll(uniqueConstructionCalculations);
   }
 
   public void deleteCalculationById(UUID id) {
