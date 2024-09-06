@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @Component
 public class UserPropertiesValidator {
-  private static final String PW_PATTERN =
+  private static final String USERNAME_PATERN =
       "^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){3,18}[a-zA-Z0-9]$";
-  private static final String PASSWORD_PATTERN =
+  private static final String PW_PATTERN =
       "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$";
 
   public String validateRegistrationRequest(RegistrationRequestDto requestDto) {
@@ -38,7 +38,7 @@ public class UserPropertiesValidator {
   }
 
   private String validateUsername(String username) {
-    Pattern usernamePattern = Pattern.compile(PW_PATTERN);
+    Pattern usernamePattern = Pattern.compile(USERNAME_PATERN);
     Matcher matcher = usernamePattern.matcher(username);
     if (!matcher.matches()) {
       return """
@@ -51,7 +51,7 @@ public class UserPropertiesValidator {
   }
 
   private String validatePassword(String password) {
-    Pattern passwordPattern = Pattern.compile(PASSWORD_PATTERN, Pattern.CASE_INSENSITIVE);
+    Pattern passwordPattern = Pattern.compile(PW_PATTERN, Pattern.CASE_INSENSITIVE);
     Matcher matcher = passwordPattern.matcher(password);
     if (!matcher.matches()) {
       return """
