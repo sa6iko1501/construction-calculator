@@ -2,6 +2,7 @@
 package com.turboproductions.consrtuctioncalculator.models;
 
 import jakarta.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
@@ -11,7 +12,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "tb_calculation")
 @Getter
-public class ConstructionCalculation {
+public class ConstructionCalculation implements Serializable {
   @Id
   @Column(name = "calculation_id")
   private UUID calculationId;

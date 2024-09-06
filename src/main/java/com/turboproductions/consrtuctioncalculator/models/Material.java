@@ -8,6 +8,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.io.Serializable;
 import java.util.UUID;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,7 @@ import lombok.Setter;
 @Table(
     name = "tb_material",
     uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "material_name"}))
-public class Material {
+public class Material implements Serializable {
   @Id
   @Column(name = "material_id")
   private UUID materialId;

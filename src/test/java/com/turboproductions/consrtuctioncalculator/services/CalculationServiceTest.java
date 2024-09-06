@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -43,7 +42,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class CalculationServiceTest {
+class CalculationServiceTest {
   @Mock private RoomValidator roomValidator;
   @Mock private MaterialRepository materialRepository;
   @Mock private ConstructionCalculationRepository calculationRepository;
@@ -126,9 +125,7 @@ public class CalculationServiceTest {
     when(roomCalculationRepository.findRoomCalculationsByUserUUIDAndAndFloorMaterial(
             eq(mockUserId), eq("Floor Tiles")))
         .thenReturn(
-            mockRooms.stream()
-                .filter(x -> x.getFloorMaterial().equals("Floor Tiles"))
-                .collect(Collectors.toList()));
+            mockRooms.stream().filter(x -> x.getFloorMaterial().equals("Floor Tiles")).toList());
 
     when(roomCalculationRepository.findRoomCalculationsByUserUUIDAndAndWallMaterial(
             eq(mockUserId), eq("Wallpaper")))
@@ -319,6 +316,6 @@ public class CalculationServiceTest {
     }
     return roomsDerivedFromSheet.stream()
         .sorted(Comparator.comparing(RoomCalculation::getRoomNumber))
-        .collect(Collectors.toList());
+        .toList();
   }
 }

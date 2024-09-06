@@ -11,6 +11,4 @@ public interface ConstructionCalculationRepository
     extends JpaRepository<ConstructionCalculation, UUID> {
   List<ConstructionCalculation> findConstructionCalculationsByUserOrderByDate(User user);
 
-  List<ConstructionCalculation> findConstructionCalculationsByUserAndActive(
-      User user, boolean active);
 }
