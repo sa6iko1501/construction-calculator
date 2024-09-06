@@ -37,6 +37,10 @@ public class ConstructionCalculation {
   private LocalDateTime date;
 
   @Setter
+  @Column(name = "active")
+  private boolean active;
+
+  @Setter
   @OneToMany(mappedBy = "constructionCalculation", cascade = CascadeType.ALL, orphanRemoval = true)
   private Set<RoomCalculation> roomCalculations;
 
@@ -48,5 +52,6 @@ public class ConstructionCalculation {
   public ConstructionCalculation() {
     this.date = LocalDateTime.now();
     this.calculationId = UUID.randomUUID();
+    this.active = true;
   }
 }

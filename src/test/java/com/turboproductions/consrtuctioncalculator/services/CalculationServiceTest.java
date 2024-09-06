@@ -18,6 +18,7 @@ import com.turboproductions.consrtuctioncalculator.models.Material;
 import com.turboproductions.consrtuctioncalculator.models.MaterialType;
 import com.turboproductions.consrtuctioncalculator.models.RoomCalculation;
 import com.turboproductions.consrtuctioncalculator.models.User;
+import com.turboproductions.consrtuctioncalculator.models.dto.ConstructionActivityRequest;
 import com.turboproductions.consrtuctioncalculator.services.helpers.RoomValidator;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -236,6 +237,32 @@ public class CalculationServiceTest {
       assertEquals(lastFromCalculation.getRoomArea(), lastFromSheet.getRoomArea());
       assertEquals(lastFromCalculation.getRoomPrice(), lastFromSheet.getRoomPrice());
     }
+  }
+
+  @Test
+  void setCalculationActivityTest() {
+    ConstructionActivityRequest request =
+        new ConstructionActivityRequest(mockCalculation.getCalculationId(), false);
+    when(calculationRepository.findById(request.getConstructionId()))
+        .thenReturn(Optional.of(mockCalculation));
+
+    calculationService.setCalculationActivity(request);
+
+    verify(calculationRepository, times(1)).save(eq(mockCalculation));
+  }
+
+  @Test
+  void setCalculationActivityNullCalcTest() {
+    ConstructionActivityRequest request =
+        new ConstructionActivityRequest(mockCalculation.getCalculationId(), true);
+    when(calculationRepository.findById(request.getConstructionId())).thenReturn(Optional.empty());
+
+    assertEquals(
+        String.format("No Calculation with the id '%s' found.", mockCalculation.getCalculationId()),
+        calculationService.setCalculationActivity(request));
+
+    // Make sure the db doesn't get called when no calc found
+    verify(calculationRepository, times(0)).save(any());
   }
 
   @Test

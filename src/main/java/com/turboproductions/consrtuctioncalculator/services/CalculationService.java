@@ -8,6 +8,7 @@ import com.turboproductions.consrtuctioncalculator.models.ConstructionCalculatio
 import com.turboproductions.consrtuctioncalculator.models.Material;
 import com.turboproductions.consrtuctioncalculator.models.RoomCalculation;
 import com.turboproductions.consrtuctioncalculator.models.User;
+import com.turboproductions.consrtuctioncalculator.models.dto.ConstructionActivityRequest;
 import com.turboproductions.consrtuctioncalculator.services.helpers.RoomValidator;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -157,6 +158,18 @@ public class CalculationService {
         x -> uniqueConstructionCalculations.add(x.getConstructionCalculation()));
     uniqueConstructionCalculations.forEach(this::calculateConstructionDetails);
     constructionCalculationRepository.saveAll(uniqueConstructionCalculations);
+  }
+
+  public String setCalculationActivity(ConstructionActivityRequest request) {
+    UUID calcId = request.getConstructionId();
+    ConstructionCalculation calcToUpdate = getCalculation(calcId);
+    if (calcToUpdate == null) {
+      return String.format("No Calculation with the id '%s' found.", calcId);
+    } else {
+      calcToUpdate.setActive(request.isActive());
+      saveConstructionCalculation(calcToUpdate);
+      return "Successfully updated calc.";
+    }
   }
 
   public void deleteCalculationById(UUID id) {

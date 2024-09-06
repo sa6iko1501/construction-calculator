@@ -6,6 +6,7 @@ import com.turboproductions.consrtuctioncalculator.models.Material;
 import com.turboproductions.consrtuctioncalculator.models.MaterialType;
 import com.turboproductions.consrtuctioncalculator.models.RoomCalculation;
 import com.turboproductions.consrtuctioncalculator.models.User;
+import com.turboproductions.consrtuctioncalculator.models.dto.ConstructionActivityRequest;
 import com.turboproductions.consrtuctioncalculator.models.dto.ConstructionCalculationDto;
 import com.turboproductions.consrtuctioncalculator.services.CalculationService;
 import com.turboproductions.consrtuctioncalculator.services.MaterialService;
@@ -90,6 +91,13 @@ public class CalculationController {
       return "homepage";
     }
     return "redirect:calculations";
+  }
+
+  @PostMapping("/calculations/setActivity")
+  public ResponseEntity<String> updateActiveStatus(
+      @RequestBody ConstructionActivityRequest request) {
+    String msg = calculationService.setCalculationActivity(request);
+    return ResponseEntity.ok(msg);
   }
 
   @GetMapping("/export/{id}")

@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <title>Calculations</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
@@ -73,6 +75,7 @@
                     <th>Total Area</th>
                     <th>Total Price</th>
                     <th>Date</th>
+                    <th>Active</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -84,9 +87,17 @@
                     <td th:text="${calculation.calculationPrice}"></td>
                     <td th:text="${calculation.date}"></td>
                     <td>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox"
+                                   th:checked="${calculation.active}"
+                                   th:calculation-id="${calculation.calculationId}"
+                                   th:onchange="toggleActive(this)">
+                        </div>
+                    </td>
+                    <td>
                         <form th:action="@{/calculation/info/{id}(id=${calculation.calculationId})}" method="get" style="display:inline;">
                         <button type="submit" class="btn btn-primary btn-sm">Info</button>
-                    </form>
+                        </form>
                         <form th:action="@{/calculation/delete/{id}(id=${calculation.calculationId})}" method="post" style="display:inline;">
                             <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                         </form>
@@ -109,6 +120,35 @@
         </div>
     </footer>
 </div>
+
+<script>
+    function toggleActive(checkbox) {
+        const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute('content');
+        const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute('content')
+        const isActive = checkbox.checked;
+        const id = checkbox.getAttribute('calculation-id');
+
+        // Send the data to the backend using fetch (AJAX)
+        fetch('/calculation/calculations/setActivity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            },
+            body: JSON.stringify({
+                constructionId: id,
+                active: isActive
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+</script>
 
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
