@@ -57,7 +57,7 @@ class MaterialServiceTest {
   }
 
   @Test
-  void testHandleExcelExport() throws IOException {
+  void handleExcelExportTest() throws IOException {
     ByteArrayInputStream result = materialService.handleExcelExport(mockMaterials);
 
     assertNotNull(result);
@@ -65,22 +65,22 @@ class MaterialServiceTest {
       Sheet sheet = workbook.getSheet("Materials");
       assertNotNull(sheet);
 
-      Row row0 = sheet.getRow(0);
-      assertNotNull(row0);
-      assertEquals("Material1", row0.getCell(0).getStringCellValue());
-      assertEquals("WALL", row0.getCell(1).getStringCellValue());
-      assertEquals(10.0, row0.getCell(2).getNumericCellValue());
+      Row firstRow = sheet.getRow(0);
+      assertNotNull(firstRow);
+      assertEquals("Material1", firstRow.getCell(0).getStringCellValue());
+      assertEquals("WALL", firstRow.getCell(1).getStringCellValue());
+      assertEquals(10.0, firstRow.getCell(2).getNumericCellValue());
 
-      Row row1 = sheet.getRow(1);
-      assertNotNull(row1);
-      assertEquals("Material2", row1.getCell(0).getStringCellValue());
-      assertEquals("FLOOR", row1.getCell(1).getStringCellValue());
-      assertEquals(20.0, row1.getCell(2).getNumericCellValue());
+      Row secondRow = sheet.getRow(1);
+      assertNotNull(secondRow);
+      assertEquals("Material2", secondRow.getCell(0).getStringCellValue());
+      assertEquals("FLOOR", secondRow.getCell(1).getStringCellValue());
+      assertEquals(20.0, secondRow.getCell(2).getNumericCellValue());
     }
   }
 
   @Test
-  void testGetTemplate() throws IOException {
+  void getTemplateTest() throws IOException {
     ByteArrayInputStream result = materialService.getTemplate();
 
     assertNotNull(result);
@@ -109,14 +109,14 @@ class MaterialServiceTest {
   }
 
   @Test
-  void testGetMaterial() {
+  void getMaterialTest() {
     when(materialRepository.findById(any(UUID.class)))
         .thenReturn(Optional.of(mockMaterials.getFirst()));
     assertNotNull(materialService.getMaterial(mockMaterials.get(0).getMaterialId()));
   }
 
   @Test
-  void testDeleteMaterialById() {
+  void deleteMaterialByIdTest() {
     UUID materialId = UUID.randomUUID();
 
     doNothing().when(materialRepository).deleteById(any(UUID.class));
@@ -127,7 +127,7 @@ class MaterialServiceTest {
   }
 
   @Test
-  void testGetAllMaterials() {
+  void getAllMaterialsTest() {
     when(materialRepository.findAllByUserOrderByType(any(User.class))).thenReturn(mockMaterials);
 
     List<Material> result = materialService.getAllMaterials(new User());
@@ -152,7 +152,7 @@ class MaterialServiceTest {
   }
 
   @Test
-  void testHandleExcelImport() {
+  void handleExcelImportTest() {
     List<ImportedRow> rows =
         List.of(
             new ImportedRow("Red Paint", "WALL", 11.49),
@@ -168,13 +168,13 @@ class MaterialServiceTest {
   }
 
   @Test
-  void testHandleCreateMaterial() {
+  void handleCreateMaterialTest() {
     Material material = new Material("Red Paint", MaterialType.WALL, 11.49);
     assertNull(materialService.handleCreateMaterial(material, new User()));
   }
 
   @Test
-  void testHandleUpdateMaterial() {
+  void handleUpdateMaterialTest() {
     Material material = new Material("Red Paint", MaterialType.WALL, 11.49);
     doReturn(Optional.of(material)).when(materialRepository).findById(material.getMaterialId());
     doNothing()

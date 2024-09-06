@@ -9,8 +9,12 @@ import com.turboproductions.consrtuctioncalculator.models.Material;
 import com.turboproductions.consrtuctioncalculator.models.RoomCalculation;
 import com.turboproductions.consrtuctioncalculator.models.User;
 import com.turboproductions.consrtuctioncalculator.services.helpers.RoomValidator;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -18,6 +22,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -40,6 +48,66 @@ public class CalculationService {
     }
     saveConstructionCalculation(calculation);
     return errMsg;
+  }
+
+  public ByteArrayInputStream handleExcelExport(ConstructionCalculation calculation) {
+    try (Workbook workbook = new XSSFWorkbook();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+      Sheet sheet = workbook.createSheet(calculation.getName());
+      Row constructionInfoHeader = sheet.createRow(0);
+      constructionInfoHeader.createCell(0).setCellValue("Name");
+      constructionInfoHeader.createCell(1).setCellValue("Room count");
+      constructionInfoHeader.createCell(2).setCellValue("Total area");
+      constructionInfoHeader.createCell(3).setCellValue("Total price");
+      constructionInfoHeader.createCell(4).setCellValue("Date of calculation");
+
+      Row constructionInfoRow = sheet.createRow(1);
+      constructionInfoRow.createCell(0).setCellValue(calculation.getName());
+      constructionInfoRow.createCell(1).setCellValue(calculation.getNumberOfRooms());
+      constructionInfoRow.createCell(2).setCellValue(calculation.getSquareMeters());
+      constructionInfoRow.createCell(3).setCellValue(calculation.getCalculationPrice());
+      constructionInfoRow
+          .createCell(4)
+          .setCellValue(calculation.getDate().toString().replace("T", " "));
+
+      Row emptyRow = sheet.createRow(2);
+      Row roomInfoHeader = sheet.createRow(3);
+      roomInfoHeader.createCell(0).setCellValue("Room");
+      roomInfoHeader.createCell(1).setCellValue("Floor material");
+      roomInfoHeader.createCell(2).setCellValue("Wall material");
+      roomInfoHeader.createCell(3).setCellValue("Ceiling material");
+      roomInfoHeader.createCell(4).setCellValue("Floor area");
+      roomInfoHeader.createCell(5).setCellValue("Wall area");
+      roomInfoHeader.createCell(6).setCellValue("Ceiling area");
+      roomInfoHeader.createCell(7).setCellValue("Floor price");
+      roomInfoHeader.createCell(8).setCellValue("Wall price");
+      roomInfoHeader.createCell(9).setCellValue("Ceiling price");
+      roomInfoHeader.createCell(10).setCellValue("Total area");
+      roomInfoHeader.createCell(11).setCellValue("Total price");
+
+      int rowNum = 4;
+      for (RoomCalculation room : calculation.getRoomCalculations()) {
+        Row roomInfoRow = sheet.createRow(rowNum);
+        roomInfoRow.createCell(0).setCellValue(room.getRoomNumber());
+        roomInfoRow.createCell(1).setCellValue(room.getFloorMaterial());
+        roomInfoRow.createCell(2).setCellValue(room.getWallMaterial());
+        roomInfoRow.createCell(3).setCellValue(room.getCeilingMaterial());
+        roomInfoRow.createCell(4).setCellValue(room.getFloorSqM());
+        roomInfoRow.createCell(5).setCellValue(room.getWallSqM());
+        roomInfoRow.createCell(6).setCellValue(room.getCeilingSqM());
+        roomInfoRow.createCell(7).setCellValue(room.getFloorMaterialPrice());
+        roomInfoRow.createCell(8).setCellValue(room.getWallMaterialPrice());
+        roomInfoRow.createCell(9).setCellValue(room.getCeilingMaterialPrice());
+        roomInfoRow.createCell(10).setCellValue(room.getRoomArea());
+        roomInfoRow.createCell(11).setCellValue(room.getRoomPrice());
+        rowNum++;
+      }
+
+      workbook.write(outputStream);
+      return new ByteArrayInputStream(outputStream.toByteArray());
+    } catch (IOException ex) {
+      return null;
+    }
   }
 
   public void updateRoomsAndCalculationsOnMaterialUpdate(Material material, User user) {
@@ -125,6 +193,7 @@ public class CalculationService {
     calculation.setCalculationPrice(price.doubleValue());
     calculation.setSquareMeters(sqM.doubleValue());
     calculation.setNumberOfRooms(numberOfRooms);
+    calculation.setDate(LocalDateTime.now());
   }
 
   private void calculateRoomDetails(List<RoomCalculation> rooms, User user) {

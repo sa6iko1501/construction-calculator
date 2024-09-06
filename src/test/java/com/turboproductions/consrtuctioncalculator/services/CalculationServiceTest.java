@@ -19,13 +19,21 @@ import com.turboproductions.consrtuctioncalculator.models.MaterialType;
 import com.turboproductions.consrtuctioncalculator.models.RoomCalculation;
 import com.turboproductions.consrtuctioncalculator.models.User;
 import com.turboproductions.consrtuctioncalculator.services.helpers.RoomValidator;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -103,6 +111,7 @@ public class CalculationServiceTest {
         .forEach(m -> m.setPricePerSqMeter(4.99));
 
     mockCalculation.setRoomCalculations(new HashSet<>(mockRooms));
+    mockCalculation.setName("2 Bedroom apartment");
     mockRooms.forEach(x -> x.setConstructionCalculation(mockCalculation));
     // Manually set the second room up since it doesn't have materials that will be updated
     RoomCalculation roomCalculation = mockRooms.get(1);
@@ -175,6 +184,61 @@ public class CalculationServiceTest {
   }
 
   @Test
+  void handleExcelExportTest() throws IOException {
+    // Calculate ConstructionCalculation properties
+    when(materialRepository.findAllByUserOrderByType(eq(mockUser))).thenReturn(mockMaterials);
+    calculationService.handleConstructionCalculationCreation(mockCalculation, mockRooms, mockUser);
+
+    ByteArrayInputStream result = calculationService.handleExcelExport(mockCalculation);
+
+    assertNotNull(result);
+    try (Workbook workbook = new XSSFWorkbook(result)) {
+      Sheet sheet = workbook.getSheet(mockCalculation.getName());
+      assertNotNull(sheet);
+
+      // Assert Construction Information row
+      Row constructionDataRow = sheet.getRow(1);
+      assertNotNull(constructionDataRow);
+      assertEquals(mockCalculation.getName(), constructionDataRow.getCell(0).getStringCellValue());
+      assertEquals(
+          mockCalculation.getNumberOfRooms(), constructionDataRow.getCell(1).getNumericCellValue());
+      assertEquals(
+          mockCalculation.getSquareMeters(), constructionDataRow.getCell(2).getNumericCellValue());
+      assertEquals(
+          mockCalculation.getCalculationPrice(),
+          constructionDataRow.getCell(3).getNumericCellValue());
+      assertEquals(
+          mockCalculation.getDate().toString().replace("T", " "),
+          constructionDataRow.getCell(4).getStringCellValue());
+
+      List<RoomCalculation> derivedFromSheet = translateDataRowsToRooms(4, 3, sheet);
+      List<RoomCalculation> derivedFromCalculation =
+          mockCalculation.getRoomCalculations().stream()
+              .sorted(Comparator.comparing(RoomCalculation::getRoomNumber))
+              .toList();
+
+      // Assert sheet data matches the data in the ConstructionCalculation object
+      RoomCalculation lastFromCalculation = derivedFromCalculation.getLast();
+      RoomCalculation lastFromSheet = derivedFromSheet.getLast();
+      assertEquals(lastFromCalculation.getRoomNumber(), lastFromSheet.getRoomNumber());
+      assertEquals(lastFromCalculation.getFloorMaterial(), lastFromSheet.getFloorMaterial());
+      assertEquals(lastFromCalculation.getWallMaterial(), lastFromSheet.getWallMaterial());
+      assertEquals(lastFromCalculation.getCeilingMaterial(), lastFromSheet.getCeilingMaterial());
+      assertEquals(lastFromCalculation.getFloorSqM(), lastFromSheet.getFloorSqM());
+      assertEquals(lastFromCalculation.getWallSqM(), lastFromSheet.getWallSqM());
+      assertEquals(lastFromCalculation.getCeilingSqM(), lastFromSheet.getCeilingSqM());
+      assertEquals(
+          lastFromCalculation.getFloorMaterialPrice(), lastFromSheet.getFloorMaterialPrice());
+      assertEquals(
+          lastFromCalculation.getWallMaterialPrice(), lastFromSheet.getWallMaterialPrice());
+      assertEquals(
+          lastFromCalculation.getCeilingMaterialPrice(), lastFromSheet.getCeilingMaterialPrice());
+      assertEquals(lastFromCalculation.getRoomArea(), lastFromSheet.getRoomArea());
+      assertEquals(lastFromCalculation.getRoomPrice(), lastFromSheet.getRoomPrice());
+    }
+  }
+
+  @Test
   void getCalculationTest() {
     when(calculationRepository.findById(any(UUID.class)))
         .thenReturn(Optional.ofNullable(mockCalculation));
@@ -196,5 +260,38 @@ public class CalculationServiceTest {
     calculationService.deleteCalculationById(calculationId);
 
     verify(calculationRepository, times(1)).deleteById(calculationId);
+  }
+
+  private List<RoomCalculation> translateDataRowsToRooms(
+      int beginningRow, int numberOfRows, Sheet sheet) {
+    List<RoomCalculation> roomsDerivedFromSheet = new ArrayList<>();
+    for (int i = beginningRow; i < beginningRow + numberOfRows; i++) {
+      Row roomRow = sheet.getRow(i);
+      String roomName = roomRow.getCell(0).getStringCellValue();
+      String floorMaterial = roomRow.getCell(1).getStringCellValue();
+      String wallMaterial = roomRow.getCell(2).getStringCellValue();
+      String ceilingMaterial = roomRow.getCell(3).getStringCellValue();
+      double floorArea = roomRow.getCell(4).getNumericCellValue();
+      double wallArea = roomRow.getCell(5).getNumericCellValue();
+      double ceilingArea = roomRow.getCell(6).getNumericCellValue();
+      double floorPrice = roomRow.getCell(7).getNumericCellValue();
+      double wallPrice = roomRow.getCell(8).getNumericCellValue();
+      double ceilingPrice = roomRow.getCell(9).getNumericCellValue();
+      double totalArea = roomRow.getCell(10).getNumericCellValue();
+      double totalPrice = roomRow.getCell(11).getNumericCellValue();
+      RoomCalculation roomCalculation =
+          new RoomCalculation(
+              null, floorMaterial, floorArea, wallMaterial, wallArea, ceilingMaterial, ceilingArea);
+      roomCalculation.setRoomNumber(roomName);
+      roomCalculation.setFloorMaterialPrice(floorPrice);
+      roomCalculation.setWallMaterialPrice(wallPrice);
+      roomCalculation.setCeilingMaterialPrice(ceilingPrice);
+      roomCalculation.setRoomArea(totalArea);
+      roomCalculation.setRoomPrice(totalPrice);
+      roomsDerivedFromSheet.add(roomCalculation);
+    }
+    return roomsDerivedFromSheet.stream()
+        .sorted(Comparator.comparing(RoomCalculation::getRoomNumber))
+        .collect(Collectors.toList());
   }
 }

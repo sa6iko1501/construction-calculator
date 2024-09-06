@@ -77,16 +77,16 @@
             <thead>
             <tr>
                 <th>Room</th>
-                <th>Floor</th>
-                <th>Floor Area</th>
-                <th>Walls</th>
+                <th>Floor Material</th>
+                <th>Wall Material</th>
+                <th>Ceiling Material</th>
+                <th>Floor area</th>
                 <th>Wall Area</th>
-                <th>Ceiling</th>
                 <th>Ceiling Area</th>
-                <th>Total Area</th>
                 <th>Floor Price</th>
                 <th>Wall Price</th>
                 <th>Ceiling Price</th>
+                <th>Total Area</th>
                 <th>Total Price</th>
             </tr>
             </thead>
@@ -94,19 +94,22 @@
             <tr th:each="room : ${rooms}">
                 <td th:text="${room.roomNumber}"></td>
                 <td th:text="${room.floorMaterial}"></td>
-                <td th:text="${room.floorSqM}"></td>
                 <td th:text="${room.wallMaterial}"></td>
-                <td th:text="${room.wallSqM}"></td>
                 <td th:text="${room.ceilingMaterial}"></td>
+                <td th:text="${room.floorSqM}"></td>
+                <td th:text="${room.wallSqM}"></td>
                 <td th:text="${room.ceilingSqM}"></td>
-                <td th:text="${room.roomArea}"></td>
                 <td th:text="${room.floorMaterialPrice}"></td>
                 <td th:text="${room.wallMaterialPrice}"></td>
                 <td th:text="${room.ceilingMaterialPrice}"></td>
+                <td th:text="${room.roomArea}"></td>
                 <td th:text="${room.roomPrice}"></td>
             </tr>
             </tbody>
         </table>
+        <form th:action="@{/calculation/export/{id}(id=${calculation.calculationId})}" th:object="${calculation}" method="get" style="display:inline">
+            <button type="submit" class="btn btn-primary btn-sm">Export</button>
+        </form>
         <div th:if="${message}" class="alert alert-info" style="margin-top: 1.5%" role="alert">
             <p th:text="${message}"></p>
         </div>

@@ -9,9 +9,14 @@ import com.turboproductions.consrtuctioncalculator.models.User;
 import com.turboproductions.consrtuctioncalculator.models.dto.ConstructionCalculationDto;
 import com.turboproductions.consrtuctioncalculator.services.CalculationService;
 import com.turboproductions.consrtuctioncalculator.services.MaterialService;
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -85,6 +90,20 @@ public class CalculationController {
       return "homepage";
     }
     return "redirect:calculations";
+  }
+
+  @GetMapping("/export/{id}")
+  public ResponseEntity<InputStreamResource> exportCalculation(
+      @PathVariable("id") UUID calculationId, @AuthenticationPrincipal User authenticatedUser) {
+    ConstructionCalculation calculation = calculationService.getCalculation(calculationId);
+    ByteArrayInputStream inputStream = calculationService.handleExcelExport(calculation);
+    HttpHeaders headers = new HttpHeaders();
+    String headerValue = String.format("attachment; filename=%s.xlsx", calculation.getName());
+    headers.add("Content-Disposition", headerValue);
+    return ResponseEntity.ok()
+        .headers(headers)
+        .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+        .body(new InputStreamResource(inputStream));
   }
 
   @GetMapping("/calculations")
