@@ -60,6 +60,11 @@ public class IndexController {
     return "update-password-page";
   }
 
+  @GetMapping("/learn-more")
+  String getLearnMorePage() {
+    return "learn-more-page";
+  }
+
   @PostMapping("/user/update-password")
   String updatePassword(
       RedirectAttributes model,

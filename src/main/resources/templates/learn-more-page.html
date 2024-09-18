@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Change Password</title>
+    <title>Home</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         html, body {
@@ -16,9 +16,6 @@
             flex-direction: column;
             height: 100%;
         }
-        .navbar, .footer {
-            flex-shrink: 0;
-        }
         .content {
             flex: 1;
             display: flex;
@@ -28,14 +25,10 @@
             text-align: center;
             overflow: hidden;
         }
-        .content h1, .content p {
-            margin: 0;
-        }
     </style>
 </head>
 <body>
 <div class="content-wrapper">
-    <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-primary">
         <a class="navbar-brand" style="font-size: x-large; font-weight: bold; color: white;" href="/home">CC</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +37,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto" style="font-weight: bold">
                 <li class="nav-item">
-                    <a class="nav-link" href="/home">Home</a>
+                    <a class="nav-link"  href="/home">Home</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link"  href="/calculation/calculations">Calculations</a>
@@ -59,35 +52,26 @@
         </div>
     </nav>
 
-    <!-- Content Section -->
     <div class="content">
-        <div class="container">
-            <h2>Change Password</h2>
-            <form th:action="@{/user/update-password}" th:object="${updatePasswordRequest}" method="post">
-                <div class="form-group">
-                    <label for="name">Old Password</label>
-                    <input type="password" id="name" name="name" th:field="*{oldPassword}" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">New Password</label>
-                    <input type="password" id="password" name="password" th:field="*{newPassword}" class="form-control" required/>
-                </div>
-                <div class="form-group">
-                    <label for="confirmPassword">Confirm New Password</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword"  th:field="*{confirmNewPassword}" class="form-control" required/>
-                </div>
-                <button type="submit" class="btn btn-primary">Change Password</button>
-            </form>
-        </div>
-        <div th:if="${message}" class="alert alert-info" style="margin-top: 1.5%" role="alert">
-            <p th:text="${message}"></p>
+        <div class="jumbotron w-100">
+            <h1 class="display-4" style="margin: 5%">About Construction Calculator</h1>
+            <p class="lead">Construction Calculator is an easy-to-use tool for estimating project costs, managing materials, and exporting reports. This app is ideal for construction managers and home renovators alike.</p>
+            <hr class="my-4">
+            <p>Key Features:</p>
+            <ul class="list-unstyled">
+                <li>• Create detailed cost breakdowns by room.</li>
+                <li>• Customize your projects with specific materials.</li>
+                <li>• Save, import, and export data in Excel format using Apache POI.</li>
+                <li>• User-friendly interface with easy access to previous calculations.</li>
+            </ul>
+            <a class="btn btn-primary btn-lg" href="/calculation/rooms" role="button">Start Calculating</a>
         </div>
     </div>
 
 
 
-    <!-- Footer -->
-    <footer class="footer bg-light text-center">
+
+    <footer class="footer bg-light text-center" style="flex-shrink: 0">
         <div class="container">
             <span class="text-muted">&copy; 2024 Construction Calculator. All rights reserved.</span>
         </div>
@@ -99,4 +83,3 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
-
