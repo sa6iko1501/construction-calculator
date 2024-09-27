@@ -78,7 +78,7 @@
                         <div class="card-body">
                             <div class="form-group">
                                 <label for="floorSqM"> Floor area
-                                    <input type="number" required min="1" step="0.01" class="form-control" th:field="*{rooms[__${roomStat.index}__].floorSqM}" id="floorSqM">
+                                    <input type="number" required min="0" step="0.01" class="form-control" th:field="*{rooms[__${roomStat.index}__].floorSqM}" id="floorSqM">
                                 </label>
                             </div>
                             <div class="form-group">
@@ -93,7 +93,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="wallSqm"> Wall area
-                                    <input type="number" required min="1" step="0.01" class="form-control" th:field="*{rooms[__${roomStat.index}__].wallSqM}" id="wallSqM">
+                                    <input type="number" required min="0" step="0.01" class="form-control" th:field="*{rooms[__${roomStat.index}__].wallSqM}" id="wallSqM">
                                 </label>
                             </div>
                             <div class="form-group">
@@ -108,7 +108,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="floorSqM"> Ceiling area
-                                    <input type="number" required min="1" step="0.01" class="form-control" th:field="*{rooms[__${roomStat.index}__].ceilingSqM}" id="ceilingSqM">
+                                    <input type="number" required min="0" step="0.01" class="form-control" th:field="*{rooms[__${roomStat.index}__].ceilingSqM}" id="ceilingSqM">
                                 </label>
                             </div>
                             <div class="form-group">

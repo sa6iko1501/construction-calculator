@@ -142,6 +142,6 @@ public class CalculationController {
   public String deleteCalculation(RedirectAttributes model, @PathVariable("id") UUID id) {
     calculationService.deleteCalculationById(id);
     model.addFlashAttribute("message", "Successfully deleted calculation.");
-    return "redirect:calculations";
+    return "redirect:/calculation/calculations";
   }
 }
